@@ -1,0 +1,79 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>net.mickarea</groupId>
+	<artifactId>generator</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<name>generator</name>
+	<url>http://maven.apache.org</url>
+
+	<!-- 设置软件版本等参数 -->
+	<properties>
+	   <jdk.version>1.8</jdk.version>
+	   <encoding>utf-8</encoding>
+	</properties>
+	
+	<build>
+      <plugins>
+          <!-- 设置jdk版本 -->
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                  <source>${jdk.version}</source>
+                  <target>${jdk.version}</target>
+                  <encoding>${encoding}</encoding>
+              </configuration>
+          </plugin>
+          <!-- 设置 可执行 jar 打包插件(如果不需要，屏蔽掉这个plugin) -->
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-assembly-plugin</artifactId>
+              <executions>
+                  <execution>
+                      <phase>package</phase>
+                      <goals>
+                          <goal>single</goal>
+                      </goals>
+                      <configuration>
+                          <archive>
+                              <manifest>
+                                     <mainClass>net.mickarea.entitytools.entrance.App</mainClass>
+                              </manifest>
+                          </archive>
+                          <descriptorRefs>
+                              <descriptorRef>jar-with-dependencies</descriptorRef>
+                          </descriptorRefs>
+                      </configuration>
+                  </execution>
+              </executions>
+          </plugin>
+      </plugins>
+      <resources>
+          <resource>
+              <directory>src/main/resources</directory>
+              <includes>
+                  <!--包含文件夹以及子文件夹下所有资源-->
+                  <include>**/*.*</include>
+              </includes>
+          </resource>
+      </resources>
+    </build>
+	
+	<dependencies>
+	
+	<!-- 
+	<dependency>
+        <groupId>junit</groupId>
+		<artifactId>junit</artifactId>
+		<version>3.8.1</version>
+		<scope>test</scope>
+	</dependency>
+	-->
+		
+	</dependencies>
+	
+</project>
