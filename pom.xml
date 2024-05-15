@@ -41,7 +41,7 @@
                       <configuration>
                           <archive>
                               <manifest>
-                                     <mainClass>net.mickarea.entitytools.entrance.App</mainClass>
+                                     <mainClass>net.mickarea.generator.entrance.App</mainClass>
                               </manifest>
                           </archive>
                           <descriptorRefs>
@@ -65,15 +65,37 @@
 	
 	<dependencies>
 	
-	<!-- 
-	<dependency>
-        <groupId>junit</groupId>
-		<artifactId>junit</artifactId>
-		<version>3.8.1</version>
-		<scope>test</scope>
-	</dependency>
-	-->
-		
+	   <!-- 数据库连接池  HikariCP java8 版用 4.0 版本 -->
+	   <dependency>
+	       <groupId>com.zaxxer</groupId>
+           <artifactId>HikariCP</artifactId>
+           <version>4.0.3</version>
+       </dependency>
+       
+       <!--添加mysql的jdbc工具包，8.0.31 和 老版本的路径不同 -->
+       <dependency>
+           <groupId>com.mysql</groupId>
+           <artifactId>mysql-connector-j</artifactId>
+           <version>8.0.31</version>
+       </dependency>
+       
+       <!-- 添加 json 处理工具包 -->
+       <dependency>
+           <groupId>com.fasterxml.jackson.core</groupId>
+           <artifactId>jackson-core</artifactId>
+           <version>2.15.2</version>
+       </dependency>
+       <dependency>
+           <groupId>com.fasterxml.jackson.core</groupId>
+           <artifactId>jackson-annotations</artifactId>
+           <version>2.15.2</version>
+       </dependency>
+       <dependency>
+           <groupId>com.fasterxml.jackson.core</groupId>
+           <artifactId>jackson-databind</artifactId>
+           <version>2.15.2</version>
+       </dependency>
+       
 	</dependencies>
 	
 </project>
