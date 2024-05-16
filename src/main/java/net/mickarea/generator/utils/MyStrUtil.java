@@ -12,6 +12,9 @@ package net.mickarea.generator.utils;
 
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * &gt;&gt;&nbsp;一个字符串工具类
  * @author Michael Pang (Dongcan Pang)
@@ -27,6 +30,9 @@ public class MyStrUtil {
 			                                      "private",  "protected",  "public",  "return",    "short",     "static",     "strictfp", "super",   "switch", "synchronized",
 			                                      "this",     "throw",      "throws",  "transient", "try",       "void",       "volatile", "while",   "true",   "false",
 			                                      "null",     "goto",       "const"};
+	
+	//定义一个日志处理类
+	public static final Logger mylogger = LoggerFactory.getLogger("jar");
 	
 	/**
 	 * 私有构造函数，防止被 new 创建对象

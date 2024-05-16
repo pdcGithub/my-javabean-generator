@@ -159,7 +159,7 @@ public final class MyValidUtil {
 				}
 			}
 			//
-			if(fileDir!=null && !Pattern.matches("([a-zA-Z]\\:)?([\\/\\\\][\\w\\_ ]+)+[\\/\\\\]?", fileDir)) {
+			if(fileDir!=null && !Pattern.matches(".+", fileDir)) {
 				throw new Exception("the dir path of target files is invalid");
 			}
 		}catch(Exception e) {

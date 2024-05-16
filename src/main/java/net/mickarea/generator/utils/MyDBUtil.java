@@ -82,6 +82,8 @@ public final class MyDBUtil {
 			}else {
 				result.setMessage(e.getMessage());
 			}
+			//增加日志输出
+			MyStrUtil.mylogger.error(e.getMessage(), e);
 		}finally {
 			//资源释放
 			if(mana!=null){
@@ -139,6 +141,8 @@ public final class MyDBUtil {
 			}else {
 				result.setMessage(e.getMessage());
 			}
+			//增加日志输出
+			MyStrUtil.mylogger.error(e.getMessage(), e);
 		}finally {
 			//资源释放
 			if(mana!=null){
@@ -200,6 +204,8 @@ public final class MyDBUtil {
 			}else {
 				result.setMessage(e.getMessage());
 			}
+			//增加日志输出
+			MyStrUtil.mylogger.error(e.getMessage(), e);
 		}finally {
 			//资源释放
 			if(mana!=null){
@@ -236,6 +242,11 @@ public final class MyDBUtil {
 			if(sdb.getResponseStatus().equals(SimpleDBData.ERR)) {
 				resultList.add(new GenResult(tabName, "", false, sdb.getResponseInfo(), ""));
 				//报错则跳过
+				continue;
+			}
+			if(sdb.getResponseStatus().equals(SimpleDBData.OK) && (sdb.getData()==null || sdb.getData().length<=0)) {
+				resultList.add(new GenResult(tabName, "", false, "cannot find anything of this table", ""));
+				//没内容则跳过
 				continue;
 			}
 			//将执行的数据库字典信息，封装
@@ -349,6 +360,8 @@ public final class MyDBUtil {
 				sdb.setResponseInfo("nothing return from sql");
 			}
 		}catch(Exception e) {
+			//增加日志输出
+			MyStrUtil.mylogger.error(e.getMessage(), e);
 			throw e;
 		}finally {
 			//资源释放
