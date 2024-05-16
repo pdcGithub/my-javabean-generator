@@ -13,7 +13,7 @@ package net.mickarea.generator.entrance;
 import net.mickarea.generator.models.CommandArguments;
 import net.mickarea.generator.models.SqlResult;
 import net.mickarea.generator.models.ValidResult;
-import net.mickarea.generator.utils.DBUtil;
+import net.mickarea.generator.utils.MyDBUtil;
 
 /**
  * &gt;&gt;&nbsp;这是一个Java代码生成器的入口程序
@@ -43,7 +43,7 @@ public class App {
 						throw new Exception(vResult.getMessage());
 					}
 					//数据库连接测试
-					SqlResult sResult = DBUtil.testDBConnection(cArgs);
+					SqlResult sResult = MyDBUtil.testDBConnection(cArgs);
 					if(sResult.getOk()) {
 						System.out.println("success:database connnection is ok.");
 					}else {
@@ -60,24 +60,29 @@ public class App {
 						throw new Exception(vResult2.getMessage());
 					}
 					//数据库库表获取处理
-					SqlResult sResult2 = DBUtil.getDatabaseObjects(cArgs2);
+					SqlResult sResult2 = MyDBUtil.getDatabaseObjects(cArgs2);
 					if(sResult2.getOk()) {
 						System.out.println("success:"+sResult2.getData());
 					}else {
 						throw new Exception(sResult2.getMessage());
 					}
 					break;
-				case 15:
-					//如果参数等于15个，则构建实体对象
+				case 16:
+					//如果参数等于16个，则构建实体对象
 					CommandArguments cArgs3 = new CommandArguments(args[0], args[1], args[2], args[3], args[4], args[5], 
-							args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14]);
+							args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
 					//参数校验
 					ValidResult vResult3 = cArgs3.valid();
 					if(!vResult3.getValid()) {
 						throw new Exception(vResult3.getMessage());
 					}
 					//构建实体对象
-					
+					SqlResult sResult3 = MyDBUtil.genJavaEntityFiles(cArgs3);
+					if(sResult3.getOk()) {
+						System.out.println("success:"+sResult3.getData());
+					}else {
+						throw new Exception(sResult3.getMessage());
+					}
 					break;
 				default:
 					//参数不齐全，则无法处理

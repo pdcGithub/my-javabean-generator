@@ -22,16 +22,23 @@ import net.mickarea.generator.models.ValidResult;
  * @version 1.0
  * @since 2024年5月15日
  */
-public class ValidUtil {
+public final class MyValidUtil {
+	
+	/**
+	 * 私有构造函数，防止被 new 创建对象
+	 */
+	private MyValidUtil() {
+		// TODO Auto-generated constructor stub
+	}
 	
 	/**
 	 * 允许的数据库类型
 	 */
-	public static List<String> AVAILABLE_DATABASE_TYPE = Arrays.asList("mysql","oracle","sqlserver");
+	public static final List<String> AVAILABLE_DATABASE_TYPE = Arrays.asList("mysql","oracle","sqlserver");
 	/**
 	 * 允许的字符集
 	 */
-	public static List<String> AVAILABLE_CHARSET = Arrays.asList("UTF-8", "GBK", "GB2312", "GB18030", "BIG5", "ISO-8859-1");
+	public static final List<String> AVAILABLE_CHARSET = Arrays.asList("UTF-8", "GBK", "GB2312", "GB18030", "BIG5", "ISO-8859-1");
 
 	/**
 	 * &gt;&gt;&nbsp;校验将要执行的参数
@@ -50,12 +57,13 @@ public class ValidUtil {
 	 * @param charSet 生成的java文件字符集
 	 * @param actionType 动作类型：object / sql
 	 * @param objOrSql 根据actionType切换，库表字符串 或者 一个sql 语句
+	 * @param fileDir 文件存放位置
 	 * @return 如果校验不通过，会返回对应信息
 	 */
-	public static ValidResult validArguments(String databaseType, String poolName, String jdbcDriver, 
+	public static final ValidResult validArguments(String databaseType, String poolName, String jdbcDriver, 
 			String jdbcUrl, String dbUser, String dbPasswd, String isAutoCommit, String connTimeout, 
 			String minThreadNum, String maxThreadNum, String schema, String schemaUser, String charSet,
-			String actionType, String objOrSql) {
+			String actionType, String objOrSql, String fileDir) {
 		//返回的结果对象
 		ValidResult result = new ValidResult();
 		try {
@@ -149,6 +157,10 @@ public class ValidUtil {
 				}else if(actionType.equalsIgnoreCase("sql") && !Pattern.matches("select[.]+", actionType)) {
 					throw new Exception("the string of sql is invalid");
 				}
+			}
+			//
+			if(fileDir!=null && !Pattern.matches("([a-zA-Z]\\:)?([\\/\\\\][\\w\\_ ]+)+[\\/\\\\]?", fileDir)) {
+				throw new Exception("the dir path of target files is invalid");
 			}
 		}catch(Exception e) {
 			result.setValid(false);

@@ -10,7 +10,7 @@ Copyright (c) 2024 Michael Pang.
 *******************************************************************************************************/
 package net.mickarea.generator.models;
 
-import net.mickarea.generator.utils.ValidUtil;
+import net.mickarea.generator.utils.MyValidUtil;
 
 /**
  * &gt;&gt;&nbsp;由命令行传入的参数对象
@@ -35,6 +35,7 @@ public class CommandArguments {
 	private String charSet ; //生成的java文件字符集
 	private String actionType ; //动作类型：object / sql
 	private String objOrSql ; //根据actionType切换，库表字符串 或者 一个sql 语句
+	private String fileDir ; //文件的保存路径
 	
 	/**
 	 * 无参构造函数
@@ -119,10 +120,11 @@ public class CommandArguments {
 	 * @param charSet 生成的java文件字符集
 	 * @param actionType 动作类型：object / sql
 	 * @param objOrSql 根据actionType切换，库表字符串 或者 一个sql 语句
+	 * @param fileDir 文件存放路径
 	 */
 	public CommandArguments(String databaseType, String poolName, String jdbcDriver, String jdbcUrl, String dbUser,
 			String dbPasswd, String isAutoCommit, String connTimeout, String minThreadNum, String maxThreadNum,
-			String schema, String schemaUser, String charSet, String actionType, String objOrSql) {
+			String schema, String schemaUser, String charSet, String actionType, String objOrSql, String fileDir) {
 		super();
 		this.databaseType = databaseType;
 		this.poolName = poolName;
@@ -139,6 +141,7 @@ public class CommandArguments {
 		this.charSet = charSet;
 		this.actionType = actionType;
 		this.objOrSql = objOrSql;
+		this.fileDir = fileDir;
 	}
 
 	/**
@@ -352,14 +355,28 @@ public class CommandArguments {
 	}
 	
 	/**
+	 * @return the fileDir
+	 */
+	public String getFileDir() {
+		return fileDir;
+	}
+
+	/**
+	 * @param fileDir the fileDir to set
+	 */
+	public void setFileDir(String fileDir) {
+		this.fileDir = fileDir;
+	}
+
+	/**
 	 * &gt;&gt;&nbsp; 校验参数的有效性
 	 * @return 返回一个验证结果对象 ValidResult
 	 */
 	public ValidResult valid() {
-		return ValidUtil.validArguments(databaseType, poolName, jdbcDriver, jdbcUrl, dbUser, dbPasswd, 
+		return MyValidUtil.validArguments(databaseType, poolName, jdbcDriver, jdbcUrl, dbUser, dbPasswd, 
 				isAutoCommit, connTimeout, minThreadNum, maxThreadNum, 
 				schema, schemaUser, 
-				charSet, actionType, objOrSql);
+				charSet, actionType, objOrSql, fileDir);
 	}
 
 	/* (non-Javadoc)
@@ -371,7 +388,7 @@ public class CommandArguments {
 				+ jdbcDriver + ", jdbcUrl=" + jdbcUrl + ", dbUser=" + dbUser + ", dbPasswd=" + dbPasswd
 				+ ", isAutoCommit=" + isAutoCommit + ", connTimeout=" + connTimeout + ", minThreadNum=" + minThreadNum
 				+ ", maxThreadNum=" + maxThreadNum + ", schema=" + schema + ", schemaUser=" + schemaUser + ", charSet="
-				+ charSet + ", actionType=" + actionType + ", objOrSql=" + objOrSql + "]";
+				+ charSet + ", actionType=" + actionType + ", objOrSql=" + objOrSql + ", fileDir=" + fileDir + "]";
 	}
 	
 }
