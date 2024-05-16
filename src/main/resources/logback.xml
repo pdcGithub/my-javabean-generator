@@ -8,14 +8,14 @@
     </appender>
     
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>logs/test.log</file>
+        <file>logs/jar-run.log</file>
         <encoder>
             <pattern>%d [%thread] %-5level %logger{36} [%file : %line] - %msg%n</pattern>
         </encoder>
     </appender>
     
     <root level="ERROR">
-        <appender-ref ref="STDOUT" />
+        <!-- <appender-ref ref="STDOUT" /> -->
         <appender-ref ref="FILE" />
     </root>
     
