@@ -20,7 +20,7 @@ import net.mickarea.generator.utils.MyStrUtil;
  * >> 一个私人的实体类字符输出工具
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2023年7月18日-2024年5月16日
+ * @since 2023年7月18日-2024年5月17日
  */
 public final class MyWriter {
 	
@@ -73,6 +73,7 @@ public final class MyWriter {
 		sb.append("import net.mickarea.tools.annotation.MyColumn;"+lineSeperator);
 		sb.append("import net.mickarea.tools.annotation.MyIdGroup;"+lineSeperator);
 		sb.append("import net.mickarea.tools.annotation.MyTableOrView;"+lineSeperator);
+		sb.append("import net.mickarea.tools.annotation.MyVirtualEntity;"+lineSeperator);
 		sb.append("import net.mickarea.tools.utils.Stdout;"+lineSeperator);
 		sb.append(lineSeperator);
 		return sb.toString();
@@ -92,7 +93,12 @@ public final class MyWriter {
 		sb.append(" * @version 1.0"+lineSeperator);
 		sb.append(" * @since "+dateTime+lineSeperator);
 		sb.append(" */"+lineSeperator);
-		sb.append("@MyTableOrView(name=\""+tableName+"\")"+lineSeperator);
+		if(tableName!=null) {
+			sb.append("@MyTableOrView(name=\""+tableName+"\")"+lineSeperator);
+		}else {
+			//如果是SQL语句映射的内容，它就是虚拟实体类
+			sb.append("@MyVirtualEntity"+lineSeperator);
+		}
 		sb.append("public class "+entityName+" {"+lineSeperator);
 		
 		//属性处理
