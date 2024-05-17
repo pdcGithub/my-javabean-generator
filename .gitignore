@@ -26,3 +26,4 @@ replay_pid*
 # eclipse maven project files or directorys
 target/
 .settings/
+logs/
