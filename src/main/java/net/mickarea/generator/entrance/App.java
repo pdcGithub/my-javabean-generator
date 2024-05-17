@@ -19,7 +19,7 @@ import net.mickarea.generator.utils.MyDBUtil;
  * &gt;&gt;&nbsp;这是一个Java代码生成器的入口程序
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月8日-2024年5月15日
+ * @since 2024年5月8日-2024年5月17日
  */
 public class App {
 
@@ -68,6 +68,7 @@ public class App {
 					}
 					break;
 				case 16:
+					
 					//如果参数等于16个，则构建实体对象
 					CommandArguments cArgs3 = new CommandArguments(args[0], args[1], args[2], args[3], args[4], args[5], 
 							args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
