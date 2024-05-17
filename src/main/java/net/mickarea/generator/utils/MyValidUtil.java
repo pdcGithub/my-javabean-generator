@@ -20,7 +20,7 @@ import net.mickarea.generator.models.ValidResult;
  * &gt;&gt;&nbsp;关于参数的校验处理
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月15日
+ * @since 2024年5月15日-2024年5月17日
  */
 public final class MyValidUtil {
 	
@@ -69,98 +69,98 @@ public final class MyValidUtil {
 		try {
 			//
 			if(databaseType!=null && !AVAILABLE_DATABASE_TYPE.contains(databaseType.toLowerCase())) {
-				throw new Exception("database type is invalid.");
+				throw new Exception("database type is invalid.["+databaseType+"]");
 			}
 			//
 			if(poolName!=null && !Pattern.matches("[0-9a-zA-Z]+", poolName)) {
-				throw new Exception("pool name is invalid");
+				throw new Exception("pool name is invalid.["+poolName+"]");
 			}
 			//
 			if(jdbcDriver!=null && !Pattern.matches("[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)+", jdbcDriver)) {
-				throw new Exception("jdbc driver name is invalid");
+				throw new Exception("jdbc driver name is invalid.["+jdbcDriver+"]");
 			}
 			//
 			if(jdbcUrl!=null && !Pattern.matches("jdbc:(oracle|mysql|sqlserver):[\\.=:@;0-9a-zA-Z\\_\\\\\\/]+", jdbcUrl)) {
-				throw new Exception("jdbc url is invalid");
+				throw new Exception("jdbc url is invalid.["+jdbcUrl+"]");
 			}
 			//
 			if(dbUser!=null && !Pattern.matches(".+", dbUser)) {
-				throw new Exception("user of db connection is invalid");
+				throw new Exception("user of db connection is invalid.["+dbUser+"]");
 			}
 			//
 			if(dbPasswd!=null && !Pattern.matches(".+", dbPasswd)) {
-				throw new Exception("password of db connection is invalid");
+				throw new Exception("password of db connection is invalid.["+dbPasswd+"]");
 			}
 			//
 			if(isAutoCommit!=null && !Pattern.matches("true|false", isAutoCommit.toLowerCase())) {
-				throw new Exception("the value of commit type is invalid.");
+				throw new Exception("the value of commit type is invalid.["+isAutoCommit.toLowerCase()+"]");
 			}
 			//
 			if(connTimeout !=null && !Pattern.matches("[1-9](\\d+)?", connTimeout)) {
-				throw new Exception("the value of connection timeout is invalid");
+				throw new Exception("the value of connection timeout is invalid.["+connTimeout+"]");
 			}else {
 				try {
 					int tmp = new Integer(connTimeout);
 					if(tmp<1000 || tmp>60000) {
-						throw new Exception("the value of connection timeout is too small or too large");
+						throw new Exception("the value of connection timeout is too small or too large.["+connTimeout+"]");
 					}
 				}catch(NumberFormatException e1) {
-					throw new Exception("the value of connection timeout cannot be converted");
+					throw new Exception("the value of connection timeout cannot be converted.["+connTimeout+"]");
 				}
 			}
 			//
 			if(minThreadNum!=null && !Pattern.matches("[1-9](\\d+)?", minThreadNum)) {
-				throw new Exception("the value of minThreadNum is invalid");
+				throw new Exception("the value of minThreadNum is invalid.["+minThreadNum+"]");
 			}else {
 				try {
 					int tmp = new Integer(minThreadNum);
 					if(tmp>10) {
-						throw new Exception("the value of minThreadNum is too large");
+						throw new Exception("the value of minThreadNum is too large.["+minThreadNum+"]");
 					}
 				}catch(NumberFormatException e1) {
-					throw new Exception("the value of minThreadNum cannot be converted");
+					throw new Exception("the value of minThreadNum cannot be converted.["+minThreadNum+"]");
 				}
 			}
 			//
 			if(maxThreadNum!=null && !Pattern.matches("[1-9](\\d+)?", maxThreadNum)) {
-				throw new Exception("the value of maxThreadNum is invalid");
+				throw new Exception("the value of maxThreadNum is invalid.["+maxThreadNum+"]");
 			}else {
 				try {
 					int tmp = new Integer(maxThreadNum);
 					if(tmp>50) {
-						throw new Exception("the value of maxThreadNum is too large");
+						throw new Exception("the value of maxThreadNum is too large.["+maxThreadNum+"]");
 					}
 				}catch(NumberFormatException e1) {
-					throw new Exception("the value of maxThreadNum cannot be converted");
+					throw new Exception("the value of maxThreadNum cannot be converted.["+maxThreadNum+"]");
 				}
 			}
 			//
 			if(schema!=null && !Pattern.matches("[0-9A-Za-z\\_]+", schema)) {
-				throw new Exception("the schema name is invalid");
+				throw new Exception("the schema name is invalid.["+schema+"]");
 			}
 			//
 			if(schemaUser!=null && !Pattern.matches("[0-9A-Za-z\\_]+", schemaUser)) {
-				throw new Exception("the schema user name is invalid");
+				throw new Exception("the schema user name is invalid.["+schemaUser+"]");
 			}
 			//
 			if(charSet!=null && !AVAILABLE_CHARSET.contains(charSet)) {
-				throw new Exception("charSet is invalid");
+				throw new Exception("charSet is invalid.["+charSet+"]");
 			}
 			//
 			if(actionType!=null && !Pattern.matches("object|sql", actionType.toLowerCase())) {
-				throw new Exception("actionType is invalid");
+				throw new Exception("actionType is invalid.["+actionType+"]");
 			}
 			//
 			if(objOrSql!=null) {
-				if(actionType.equalsIgnoreCase("object") && !Pattern.matches("[\\$\\_a-zA-Z0-9]+(\\,[\\$\\_a-zA-Z0-9]+)*", actionType)) {
-					throw new Exception("the string of tables is invalid");
-				}else if(actionType.equalsIgnoreCase("sql") && !Pattern.matches("select[.]+", actionType)) {
-					throw new Exception("the string of sql is invalid");
+				if(actionType.equalsIgnoreCase("object") && !Pattern.matches("[\\$\\_a-zA-Z0-9]+(\\,[\\$\\_a-zA-Z0-9]+)*", objOrSql)) {
+					throw new Exception("the string of tables is invalid.["+objOrSql+"]");
+				}else if(actionType.equalsIgnoreCase("sql") && !Pattern.matches("select.+", objOrSql)) {
+					throw new Exception("the string of sql is invalid.["+objOrSql+"]");
 				}
 			}
 			//
-			if(fileDir!=null && !Pattern.matches(".+", fileDir)) {
-				throw new Exception("the dir path of target files is invalid");
+			if(fileDir!=null && !Pattern.matches("([a-zA-Z]\\:)?([\\/\\\\][\\w\\_\\- ]+)+[\\/\\\\]?", fileDir)) {
+				throw new Exception("the dir path of target files is invalid.["+fileDir+"]");
 			}
 		}catch(Exception e) {
 			result.setValid(false);
