@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * &gt;&gt;&nbsp;一个字符串工具类
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月16日
+ * @since 2024年5月16日-2024年5月17日
  */
 public class MyStrUtil {
 
@@ -71,6 +71,15 @@ public class MyStrUtil {
 			result += "s";
 		}
 		return result;
+	}
+	
+	/**
+	 * &gt;&gt;&nbsp;根据传入的表或者视图名，生成一个Java类名
+	 * @param tableName 表名或者视图名
+	 * @return Java类名
+	 */
+	public static String genNameFromTable(String tableName) {
+		return makeFirstCharUpperCase(genNameFromColumn(tableName));
 	}
 	
 	/**
