@@ -37,7 +37,7 @@ import net.mickarea.generator.opts.MyWriter;
  * &gt;&gt;&nbsp;关于数据库操作的工具类
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月15日
+ * @since 2024年5月15日-2024年5月17日
  */
 public final class MyDBUtil {
 
@@ -260,6 +260,8 @@ public final class MyDBUtil {
 				t.setColumnKey(sdb.getData()[i][4].toString());
 				t.setExtra(sdb.getData()[i][5].toString());
 				t.setColumnComment(sdb.getData()[i][6].toString());
+				//
+				tmpObjs.add(t);
 			}
 			//再查询2个信息，java 属性名 和 java 数据类型
 			String preSql2 = "select * from "+schema+"."+tabName+" where 1=2";
@@ -276,7 +278,7 @@ public final class MyDBUtil {
 				}
 			}
 			//根据表名，生成一个 Java 类名
-			String entityName = MyStrUtil.genNameFromColumn(tabName);
+			String entityName = MyStrUtil.genNameFromTable(tabName);
 			//根据文件夹，生成一个 Java 文件路径
 			String entityFilePath = fileDir + File.separator + entityName + ".java";
 			String fileName = entityName + ".java";
@@ -316,9 +318,55 @@ public final class MyDBUtil {
 	 * @throws Exception 一些异常
 	 */
 	private static final List<GenResult> dbSqlToJavaEntity(DataSource ds, String sql, String charSet, String fileDir) throws Exception {
-		//List<GenResult> resultList = new ArrayList<GenResult>();
-		throw new Exception("the generator of sql not done yet");
-		//return resultList;
+		//
+		List<GenResult> resultList = new ArrayList<GenResult>();
+		//时间戳
+		String tmpTabName = "sql_"+System.currentTimeMillis();
+		//执行查询
+		SimpleDBData sdb = mySqlQuery(ds, sql, null);
+		//由于一个sql语句，只能生成一个Java类，这里也就不需要循环了。
+		if(sdb.getResponseStatus().equalsIgnoreCase(SimpleDBData.ERR)) {
+			resultList.add(new GenResult(tmpTabName, "", false, sdb.getResponseInfo(), ""));
+		}else {
+			//由于这里是一个sql语句，所以没有数据字典信息，直接填充一些内容即可
+			List<TabOrViewTmpObj> tmpObjs = new ArrayList<TabOrViewTmpObj>();
+			for(int i=0;i<sdb.getColumnName().size();i++) {
+				TabOrViewTmpObj tmp = new TabOrViewTmpObj();
+				tmp.setColumnName(sdb.getColumnName().get(i));
+				tmp.setPropertyName(MyStrUtil.genNameFromColumn(tmp.getColumnName()));
+				tmp.setPropertyType(sdb.getColumnClassName().get(i).replaceFirst("java\\.lang\\.", ""));
+				tmp.setColumnComment("");
+				tmp.setColumnKey("");
+				tmp.setColumnType(sdb.getColumnTypeName().get(i));
+				tmp.setExtra("");
+				tmp.setDataType("");
+				tmp.setOrdinalPosition(0L);
+				//
+				tmpObjs.add(tmp);
+			}
+			//构造内容
+			String entityName = MyStrUtil.genNameFromTable(tmpTabName);
+			//根据文件夹，生成一个 Java 文件路径
+			String entityFilePath = fileDir + File.separator + entityName + ".java";
+			String fileName = entityName + ".java";
+			//
+			String header = MyWriter.writeFileHeader(entityName);
+			String imports = MyWriter.writePackageAndImport();
+			//这里是虚拟实体，所以表名不用写
+			String codes = MyWriter.writeTableCode(entityName, null, tmpObjs);
+			StringBuffer sb = new StringBuffer();
+			sb.append(header);
+			sb.append(imports);
+			sb.append(codes);
+			//写文件
+			ValidResult myRe = MyFileUtil.saveToLocalpath(sb.toString(), fileDir, fileName, charSet);
+			if(myRe.getValid()) {
+				resultList.add(new GenResult(tmpTabName, entityName, true, "", entityFilePath));
+			}else {
+				resultList.add(new GenResult(tmpTabName, entityName, false, myRe.getMessage(), entityFilePath));
+			}
+		}
+		return resultList;
 	}
 	
 	/**
@@ -329,7 +377,7 @@ public final class MyDBUtil {
 	 * @return SimpleDBData 对象
 	 * @throws Exception 一些异常
 	 */
-	public static final SimpleDBData mySqlQuery(DataSource ds, String preSql, List<Object> preSqlParams) throws Exception {
+	private static final SimpleDBData mySqlQuery(DataSource ds, String preSql, List<Object> preSqlParams) throws Exception {
 		//定义一个返回对象
 		SimpleDBData sdb = new SimpleDBData();
 		//数据库
@@ -377,7 +425,7 @@ public final class MyDBUtil {
 	 * @param sdb 一个 SimpleDBData 对象。作为容器使用
 	 * @param rs 数据库操作执行后，返回的结果集
 	 */
-	public static final void loadSimpleDBData(SimpleDBData sdb, ResultSet rs) throws Exception {
+	private static final void loadSimpleDBData(SimpleDBData sdb, ResultSet rs) throws Exception {
 		
 		if(sdb!=null && rs!=null) {
 			
