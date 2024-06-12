@@ -20,7 +20,7 @@ import net.mickarea.generator.models.ValidResult;
  * &gt;&gt;&nbsp;关于参数的校验处理
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月15日-2024年5月17日
+ * @since 2024年5月15日-2024年6月12日
  */
 public final class MyValidUtil {
 	
@@ -34,7 +34,7 @@ public final class MyValidUtil {
 	/**
 	 * 允许的数据库类型
 	 */
-	public static final List<String> AVAILABLE_DATABASE_TYPE = Arrays.asList("mysql","oracle","sqlserver");
+	public static final List<String> AVAILABLE_DATABASE_TYPE = Arrays.asList("mysql","oracle","sqlserver", "db2", "postgresql");
 	/**
 	 * 允许的字符集
 	 */
