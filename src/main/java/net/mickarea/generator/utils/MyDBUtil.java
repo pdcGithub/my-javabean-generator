@@ -10,34 +10,22 @@ Copyright (c) 2024 Michael Pang.
 *******************************************************************************************************/
 package net.mickarea.generator.utils;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.sql.DataSource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import net.mickarea.generator.beans.TabOrViewTmpObj;
-import net.mickarea.generator.models.CommandArguments;
-import net.mickarea.generator.models.DatabasePoolManager;
-import net.mickarea.generator.models.GenResult;
 import net.mickarea.generator.models.SimpleDBData;
-import net.mickarea.generator.models.SqlResult;
-import net.mickarea.generator.models.ValidResult;
-import net.mickarea.generator.opts.MyWriter;
 
 /**
  * &gt;&gt;&nbsp;关于数据库操作的工具类
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月15日-2024年5月17日
+ * @since 2024年5月15日-2024年6月15日
  */
 public final class MyDBUtil {
 
@@ -49,327 +37,6 @@ public final class MyDBUtil {
 	}
 	
 	/**
-	 * &gt;&gt;&nbsp;数据库连接测试
-	 * @param cArgs 命令行传来的参数
-	 * @return SqlResult 执行结果对象
-	 */
-	public static final SqlResult testDBConnection(CommandArguments cArgs) {
-		//响应结果对象
-		SqlResult result = new SqlResult();
-		//数据库管理对象
-		DatabasePoolManager mana = null;
-		try {
-			//参数校验（暂时只支持 mysql8+ 数据库）
-			if(cArgs==null) throw new Exception("the argument from command-line is empty ");
-			if(!cArgs.getDatabaseType().equalsIgnoreCase("mysql")) throw new Exception("database["+cArgs.getDatabaseType()+"] is supported");
-			//创建连接池对象
-			mana = DatabasePoolManager.getInstance(cArgs);
-			//执行数据库查询
-			SimpleDBData sdb = MyDBUtil.mySqlQuery(mana.getDataPoolByName(cArgs.getPoolName()), "select 1 ", null);
-			//根据状态处理
-			if(sdb.getResponseStatus().equalsIgnoreCase(SimpleDBData.ERR)) {
-				throw new Exception(sdb.getResponseInfo());
-			}else if(sdb.getData()!=null && sdb.getData().length>0) {
-				result.setOk(true);
-			}else {
-				throw new Exception("something wrong while connecting db");
-			}
-		}catch(Exception e) {
-			result.setOk(false);
-			if(e instanceof SQLException) { // 数据库相关异常
-				SQLException ex = (SQLException)e;
-				result.setMessage(String.format("DB Exception=> SQLException(%s), SQLState(%s), VendorError(%s)", ex.getMessage(), ex.getSQLState(), ex.getErrorCode()));
-			}else {
-				result.setMessage(e.getMessage());
-			}
-			//增加日志输出
-			MyStrUtil.mylogger.error(e.getMessage(), e);
-		}finally {
-			//资源释放
-			if(mana!=null){
-				mana.destroyDataPools();
-				mana=null;
-			}
-		}
-		return result;
-	}
-	
-	/**
-	 * &gt;&gt;&nbsp;从数据库查询一些表或者视图信息，返回给调用者
-	 * @param cArgs 命令行传来的参数
-	 * @return SqlResult 执行结果对象
-	 */
-	public static final SqlResult getDatabaseObjects(CommandArguments cArgs) {
-		//响应结果对象
-		SqlResult result = new SqlResult();
-		//数据库管理对象
-		DatabasePoolManager mana = null;
-		try {
-			//参数校验（暂时只支持 mysql8+ 数据库）
-			if(cArgs==null) throw new Exception("the argument from command-line is empty ");
-			if(!cArgs.getDatabaseType().equalsIgnoreCase("mysql")) throw new Exception("database["+cArgs.getDatabaseType()+"] not supported");
-			//创建连接池对象
-			mana = DatabasePoolManager.getInstance(cArgs);
-			//执行数据库查询
-			String preSql = "select table_name  from information_schema.tables where table_schema = ? order by table_name";
-			List<Object> preSqlParams = Arrays.asList(cArgs.getSchema());
-			//执行结果
-			SimpleDBData sdb = MyDBUtil.mySqlQuery(mana.getDataPoolByName(cArgs.getPoolName()), preSql, preSqlParams);
-			//根据状态处理
-			if(sdb.getResponseStatus().equalsIgnoreCase(SimpleDBData.ERR)) {
-				throw new Exception(sdb.getResponseInfo());
-			}else if(sdb.getData()!=null && sdb.getData().length>0) {
-				//临时结果
-				List<String> tmpDatas = new ArrayList<String>();
-				for(int i=0;i<sdb.getData().length;i++) {
-					tmpDatas.add(sdb.getData()[i][0].toString().toUpperCase());
-				}
-				//将数据转换为字符串
-				ObjectMapper mapper = new ObjectMapper();
-				result.setOk(true);
-				result.setMessage("");
-				result.setData(mapper.writeValueAsString(tmpDatas));
-			}else {
-				throw new Exception("nothing was returned by database");
-			}
-			
-		}catch(Exception e) {
-			result.setOk(false);
-			if(e instanceof SQLException) { // 数据库相关异常
-				SQLException ex = (SQLException)e;
-				result.setMessage(String.format("DB Exception=> SQLException(%s), SQLState(%s), VendorError(%s)", ex.getMessage(), ex.getSQLState(), ex.getErrorCode()));
-			}else {
-				result.setMessage(e.getMessage());
-			}
-			//增加日志输出
-			MyStrUtil.mylogger.error(e.getMessage(), e);
-		}finally {
-			//资源释放
-			if(mana!=null){
-				mana.destroyDataPools();
-				mana=null;
-			}
-		}
-		return result;
-	}
-	
-	/**
-	 * &gt;&gt;&nbsp;实体类生成处理方法
-	 * @param cArgs
-	 * @return
-	 */
-	public static final SqlResult genJavaEntityFiles(CommandArguments cArgs) {
-		//响应结果对象
-		SqlResult result = new SqlResult();
-		//数据库管理对象
-		DatabasePoolManager mana = null;
-		try {
-			//参数校验（暂时只支持 mysql8+ 数据库）
-			if(cArgs==null) throw new Exception("the argument from command-line is empty ");
-			if(!cArgs.getDatabaseType().equalsIgnoreCase("mysql")) throw new Exception("database["+cArgs.getDatabaseType()+"] not supported");
-			//判断是 表、视图，或者是 sql 语句
-			String actionType = cArgs.getActionType();
-			//字符集
-			String charSet = cArgs.getCharSet();
-			//
-			String sql = cArgs.getObjOrSql();
-			String tableNames = cArgs.getObjOrSql();
-			//文件存放路径
-			String fileDir = cArgs.getFileDir();
-			//创建连接池对象
-			mana = DatabasePoolManager.getInstance(cArgs);
-			//开始执行
-			List<GenResult> genResult = null;
-			if(actionType.equalsIgnoreCase("object")) {
-				genResult = dbObjectToJavaEntity(mana.getDataPoolByName(cArgs.getPoolName()), cArgs.getSchema(), tableNames, charSet, fileDir);
-			}else if(actionType.equalsIgnoreCase("sql")) {
-				genResult = dbSqlToJavaEntity(mana.getDataPoolByName(cArgs.getPoolName()), sql, charSet, fileDir);
-			}else {
-				throw new Exception("action type not supported");
-			}
-			//根据结果，返回信息
-			if(genResult!=null && genResult.size()>0) {
-				ObjectMapper mapper = new ObjectMapper();
-				result.setOk(true);
-				result.setMessage("");
-				result.setData(mapper.writeValueAsString(genResult));
-			}else {
-				throw new Exception("nothing was generated");
-			}
-		}catch(Exception e) {
-			result.setOk(false);
-			if(e instanceof SQLException) { // 数据库相关异常
-				SQLException ex = (SQLException)e;
-				result.setMessage(String.format("DB Exception=> SQLException(%s), SQLState(%s), VendorError(%s)", ex.getMessage(), ex.getSQLState(), ex.getErrorCode()));
-			}else {
-				result.setMessage(e.getMessage());
-			}
-			//增加日志输出
-			MyStrUtil.mylogger.error(e.getMessage(), e);
-		}finally {
-			//资源释放
-			if(mana!=null){
-				mana.destroyDataPools();
-				mana=null;
-			}
-		}
-		return result;
-	}
-	
-	/**
-	 * &gt;&gt;&nbsp;将数据库表或者视图，转换为实体对象 java 类文件
-	 * @param ds 数据库源
-	 * @param schema 数据库实例名
-	 * @param tableNames 表或者视图的字符串
-	 * @param charSet 文件的字符集
-	 * @param fileDir 文件所在的文件夹
-	 * @return List<GenResult> 生成的Java 实体类的相关信息
-	 * @throws Exception 一些异常
-	 */
-	private static final List<GenResult> dbObjectToJavaEntity(DataSource ds, String schema, String tableNames, String charSet, String fileDir) throws Exception {
-		List<GenResult> resultList = new ArrayList<GenResult>();
-		String[] tableNameArray = tableNames.split(",");
-		String preSql = "select column_name, ordinal_position, data_type, column_type,column_key, extra, column_comment "
-				+ "from information_schema.columns where table_schema=? and table_name=? order by ordinal_position";
-		List<Object> params = new ArrayList<Object>();
-		//开始循环处理
-		for(String tabName : tableNameArray) {
-			params.clear();
-			params.add(schema);
-			params.add(tabName);
-			//执行
-			SimpleDBData sdb = mySqlQuery(ds, preSql, params);
-			if(sdb.getResponseStatus().equals(SimpleDBData.ERR)) {
-				resultList.add(new GenResult(tabName, "", false, sdb.getResponseInfo(), ""));
-				//报错则跳过
-				continue;
-			}
-			if(sdb.getResponseStatus().equals(SimpleDBData.OK) && (sdb.getData()==null || sdb.getData().length<=0)) {
-				resultList.add(new GenResult(tabName, "", false, "cannot find anything of this table", ""));
-				//没内容则跳过
-				continue;
-			}
-			//将执行的数据库字典信息，封装
-			List<TabOrViewTmpObj> tmpObjs = new ArrayList<TabOrViewTmpObj>();
-			for(int i=0;i<sdb.getData().length;i++) {
-				TabOrViewTmpObj t = new TabOrViewTmpObj();
-				t.setColumnName(sdb.getData()[i][0].toString());
-				t.setOrdinalPosition(new Long(sdb.getData()[i][1].toString()));
-				t.setDataType(sdb.getData()[i][2].toString());
-				t.setColumnType(sdb.getData()[i][3].toString());
-				t.setColumnKey(sdb.getData()[i][4].toString());
-				t.setExtra(sdb.getData()[i][5].toString());
-				t.setColumnComment(sdb.getData()[i][6].toString());
-				//
-				tmpObjs.add(t);
-			}
-			//再查询2个信息，java 属性名 和 java 数据类型
-			String preSql2 = "select * from "+schema+"."+tabName+" where 1=2";
-			SimpleDBData sdb2 = mySqlQuery(ds, preSql2, null);
-			//上面已经校验过 表或者视图 是否存在，这里就不校验了。
-			List<String> colClassNames = sdb2.getColumnClassName();
-			List<String> colNames = sdb2.getColumnName();
-			//开始补充信息
-			for(int i=0;i<tmpObjs.size();i++) {
-				if(tmpObjs.get(i).getColumnName().equalsIgnoreCase(colNames.get(i))) {
-					//
-					tmpObjs.get(i).setPropertyType(colClassNames.get(i).replaceFirst("java\\.lang\\.", ""));
-					tmpObjs.get(i).setPropertyName(MyStrUtil.genNameFromColumn(colNames.get(i)));
-				}
-			}
-			//根据表名，生成一个 Java 类名
-			String entityName = MyStrUtil.genNameFromTable(tabName);
-			//根据文件夹，生成一个 Java 文件路径
-			String entityFilePath = fileDir + File.separator + entityName + ".java";
-			String fileName = entityName + ".java";
-			//开始构造文件
-			if(tmpObjs==null || tmpObjs.size()<=0) {
-				resultList.add(new GenResult(tabName, entityName, false, "cannot found any dic info of table", ""));
-				//异常则跳过
-				continue;
-			}else {
-				//构造内容
-				String header = MyWriter.writeFileHeader(entityName);
-				String imports = MyWriter.writePackageAndImport();
-				String codes = MyWriter.writeTableCode(entityName, tabName, tmpObjs);
-				StringBuffer sb = new StringBuffer();
-				sb.append(header);
-				sb.append(imports);
-				sb.append(codes);
-				//写文件
-				ValidResult myRe = MyFileUtil.saveToLocalpath(sb.toString(), fileDir, fileName, charSet);
-				if(myRe.getValid()) {
-					resultList.add(new GenResult(tabName, entityName, true, "", entityFilePath));
-				}else {
-					resultList.add(new GenResult(tabName, entityName, false, myRe.getMessage(), entityFilePath));
-				}
-			}
-		}
-		return resultList;
-	}
-	
-	/**
-	 * &gt;&gt;&nbsp;将sql语句，转换为实体对象 java 类文件
-	 * @param ds 数据库源
-	 * @param sql sql语句
-	 * @param charSet 文件的字符集
-	 * @param fileDir 文件所在的文件夹
-	 * @return List<GenResult> 生成的Java 实体类的相关信息
-	 * @throws Exception 一些异常
-	 */
-	private static final List<GenResult> dbSqlToJavaEntity(DataSource ds, String sql, String charSet, String fileDir) throws Exception {
-		//
-		List<GenResult> resultList = new ArrayList<GenResult>();
-		//时间戳
-		String tmpTabName = "sql_"+System.currentTimeMillis();
-		//执行查询
-		SimpleDBData sdb = mySqlQuery(ds, sql, null);
-		//由于一个sql语句，只能生成一个Java类，这里也就不需要循环了。
-		if(sdb.getResponseStatus().equalsIgnoreCase(SimpleDBData.ERR)) {
-			resultList.add(new GenResult(tmpTabName, "", false, sdb.getResponseInfo(), ""));
-		}else {
-			//由于这里是一个sql语句，所以没有数据字典信息，直接填充一些内容即可
-			List<TabOrViewTmpObj> tmpObjs = new ArrayList<TabOrViewTmpObj>();
-			for(int i=0;i<sdb.getColumnName().size();i++) {
-				TabOrViewTmpObj tmp = new TabOrViewTmpObj();
-				tmp.setColumnName(sdb.getColumnName().get(i));
-				tmp.setPropertyName(MyStrUtil.genNameFromColumn(tmp.getColumnName()));
-				tmp.setPropertyType(sdb.getColumnClassName().get(i).replaceFirst("java\\.lang\\.", ""));
-				tmp.setColumnComment("");
-				tmp.setColumnKey("");
-				tmp.setColumnType(sdb.getColumnTypeName().get(i));
-				tmp.setExtra("");
-				tmp.setDataType("");
-				tmp.setOrdinalPosition(0L);
-				//
-				tmpObjs.add(tmp);
-			}
-			//构造内容
-			String entityName = MyStrUtil.genNameFromTable(tmpTabName);
-			//根据文件夹，生成一个 Java 文件路径
-			String entityFilePath = fileDir + File.separator + entityName + ".java";
-			String fileName = entityName + ".java";
-			//
-			String header = MyWriter.writeFileHeader(entityName);
-			String imports = MyWriter.writePackageAndImport();
-			//这里是虚拟实体，所以表名不用写
-			String codes = MyWriter.writeTableCode(entityName, null, tmpObjs);
-			StringBuffer sb = new StringBuffer();
-			sb.append(header);
-			sb.append(imports);
-			sb.append(codes);
-			//写文件
-			ValidResult myRe = MyFileUtil.saveToLocalpath(sb.toString(), fileDir, fileName, charSet);
-			if(myRe.getValid()) {
-				resultList.add(new GenResult(tmpTabName, entityName, true, "", entityFilePath));
-			}else {
-				resultList.add(new GenResult(tmpTabName, entityName, false, myRe.getMessage(), entityFilePath));
-			}
-		}
-		return resultList;
-	}
-	
-	/**
 	 * &gt;&gt;&nbsp;一个关于简易的sql查询处理方法
 	 * @param ds DataSource 数据库对象
 	 * @param preSql 要执行的预处理语句
@@ -377,7 +44,7 @@ public final class MyDBUtil {
 	 * @return SimpleDBData 对象
 	 * @throws Exception 一些异常
 	 */
-	private static final SimpleDBData mySqlQuery(DataSource ds, String preSql, List<Object> preSqlParams) throws Exception {
+	public static final SimpleDBData mySqlQuery(DataSource ds, String preSql, List<Object> preSqlParams) throws Exception {
 		//定义一个返回对象
 		SimpleDBData sdb = new SimpleDBData();
 		//数据库
