@@ -48,7 +48,7 @@ public interface IController {
 	public SqlResult genJavaEntityFile(CommandArguments cArgs);
 	
 	/**
-	 * 将数据库表或者视图，转换为实体对象 java 类文件
+	 * 将数据库表或者视图，转换为实体对象 java 类文件（这个方法，一般由抽象类实现，因为代码是重复的）
 	 * @param ds 数据库源
 	 * @param schemaName 数据库实例名 或者 数据库模式名
 	 * @param tableNames 表或者视图的字符串
@@ -60,7 +60,7 @@ public interface IController {
 	public List<GenResult> dbObjectToJavaEntity(DataSource ds, String schemaName, String tableNames, String charSet, String fileDir)  throws Exception ;
 	
 	/**
-	 * 将sql语句，转换为实体对象 java 类文件
+	 * 将sql语句，转换为实体对象 java 类文件（这个方法，一般由抽象类实现，因为代码是重复的）
 	 * @param ds 数据库源
 	 * @param sql sql语句
 	 * @param charSet 文件的字符集
