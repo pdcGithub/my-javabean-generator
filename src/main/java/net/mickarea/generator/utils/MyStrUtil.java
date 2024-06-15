@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * &gt;&gt;&nbsp;一个字符串工具类
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月16日-2024年5月17日
+ * @since 2024年5月16日-2024年6月15日
  */
 public class MyStrUtil {
 
@@ -33,6 +33,12 @@ public class MyStrUtil {
 	
 	//定义一个日志处理类
 	public static final Logger mylogger = LoggerFactory.getLogger("jar");
+	
+	//返回消息的前缀（成功）
+	public static final String SUCCESS_PREFIX = "success:";
+	
+	//返回消息的前缀（失败）
+	public static final String ERROR_PREFIX = "error:";
 	
 	/**
 	 * 私有构造函数，防止被 new 创建对象
@@ -102,6 +108,15 @@ public class MyStrUtil {
 	}
 	
 	/**
+	 * &gt;&gt;&nbsp;根据输入的英文字符串，返回一个驼峰表示的字符串
+	 * @param input 输入的字符串
+	 * @return
+	 */
+	public static String makeHumpString(String input) {
+		return makeHumpString(input, "_");
+	}
+	
+	/**
 	 * 使一个英文字符串的首字母变为大写的形式
 	 * @param input 输入字符串
 	 * @return 处理后的字符串
@@ -141,6 +156,22 @@ public class MyStrUtil {
 			}
 		}
 		return result;
+	}
+	
+	/**
+	 * 使用标准输出流，输出执行成功的消息
+	 * @param message 要输出的消息
+	 */
+	public static void successOut(String message) {
+		System.out.println(SUCCESS_PREFIX+message);
+	}
+	
+	/**
+	 * 使用标准输出流，输出执行失败的消息
+	 * @param message 要输出的消息
+	 */
+	public static void errorOut(String message) {
+		System.out.println(ERROR_PREFIX+message);
 	}
 	
 }
