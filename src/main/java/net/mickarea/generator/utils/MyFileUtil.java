@@ -14,14 +14,18 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.util.List;
 
+import net.mickarea.generator.beans.TabOrViewTmpObj;
+import net.mickarea.generator.models.GenResult;
 import net.mickarea.generator.models.ValidResult;
+import net.mickarea.generator.opts.MyWriter;
 
 /**
  * &gt;&gt;&nbsp;文件读写操作工具类（默认的文件读写字符集为 UTF-8）
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月16日
+ * @since 2024年5月16日-2024年6月15日
  */
 public final class MyFileUtil {
 	
@@ -163,6 +167,50 @@ public final class MyFileUtil {
 	 */
 	public static ValidResult saveToLocalpath(String text, String dir, String fileName, String charset) {
 		return saveToLocalpath(text, dir, fileName, false, charset);
+	}
+	
+	/**
+	 * 根据从数据库获取的元数据信息，构造一个 Java Bean 类 文件（由于表名、文件夹路径、字符集，这些参数在前面的程序中已经校验过，这里不再校验）
+	 * @param tmpObjs 关于数据库对象的元数据信息
+	 * @param tabName 数据库对象名（表名或者视图名，如果是sql语句映射，则为一个随机名）
+	 * @param fileDir 文件生成后，保存的文件夹
+	 * @param charSet 文件生成时，使用的字符集
+	 * @param dbTakes 数据库处理耗时（毫秒）
+	 * @return 一个生成结果对象，内包含一些信息
+	 */
+	public static GenResult genJavaBeanFileFromDictInfo(List<TabOrViewTmpObj> tmpObjs, String tabName, String fileDir, String charSet, long dbTakes) {
+		//定义返回结果
+		GenResult result = null;
+		
+		//实体名称
+		String entityName = MyStrUtil.genNameFromTable(tabName);
+		//实体文件名成
+		String entityFileName = entityName+".java";
+		//实体文件路径
+		String entityFilePath = fileDir + File.separator + entityFileName ;
+		
+		//开始构造文件
+		if(tmpObjs==null || tmpObjs.size()<=0) {
+			result = new GenResult(tabName, entityName, false, "cannot found any dic info of table", "", dbTakes);
+			return result;
+		}
+		
+		//构造内容
+		StringBuffer sb = new StringBuffer();
+		sb.append(MyWriter.writeFileHeader(entityName));
+		sb.append(MyWriter.writePackageAndImport());
+		sb.append(MyWriter.writeTableCode(entityName, tabName, tmpObjs));
+		
+		//写文件
+		ValidResult myRe = saveToLocalpath(sb.toString(), fileDir, entityFileName, charSet);
+		if(myRe.getValid()) {
+			result = new GenResult(tabName, entityName, true, "", entityFilePath, dbTakes);
+		}else {
+			//如果文件保存异常，这里会返回一些异常信息
+			result = new GenResult(tabName, entityName, false, myRe.getMessage(), entityFilePath, dbTakes);
+		}
+		
+		return result;
 	}
 	
 }
