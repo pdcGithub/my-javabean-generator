@@ -14,7 +14,7 @@ package net.mickarea.generator.models;
  * &gt;&gt;&nbsp;生成的Java 实体类的相关信息
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月16日
+ * @since 2024年5月16日-2024年6月15日
  */
 public class GenResult {
 
@@ -32,6 +32,9 @@ public class GenResult {
 	
 	//文件存放路径
 	private String filePath;
+	
+	//数据库处理耗时
+	private long dbTakes;
 
 	/**
 	 * 生成的Java 实体类的相关信息
@@ -49,15 +52,16 @@ public class GenResult {
 	 * @param statusInfo 处理信息
 	 * @param filePath 文件存放路径
 	 */
-	public GenResult(String dbObjName, String entityName, boolean status, String statusInfo, String filePath) {
+	public GenResult(String dbObjName, String entityName, boolean status, String statusInfo, String filePath, long dbTakes) {
 		super();
 		this.dbObjName = dbObjName;
 		this.entityName = entityName;
 		this.status = status;
 		this.statusInfo = statusInfo;
 		this.filePath = filePath;
+		this.dbTakes = dbTakes;
 	}
-
+	
 	/**
 	 * @return the dbObjName
 	 */
@@ -127,6 +131,20 @@ public class GenResult {
 	public void setStatusInfo(String statusInfo) {
 		this.statusInfo = statusInfo;
 	}
+	
+	/**
+	 * @return the dbTakes
+	 */
+	public long getDbTakes() {
+		return dbTakes;
+	}
+
+	/**
+	 * @param dbTakes the dbTakes to set
+	 */
+	public void setDbTakes(long dbTakes) {
+		this.dbTakes = dbTakes;
+	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -134,7 +152,7 @@ public class GenResult {
 	@Override
 	public String toString() {
 		return "GenResult [dbObjName=" + dbObjName + ", entityName=" + entityName + ", status=" + status
-				+ ", statusInfo=" + statusInfo + ", filePath=" + filePath + "]";
+				+ ", statusInfo=" + statusInfo + ", filePath=" + filePath + ", dbTakes="+dbTakes+"]";
 	}
 	
 }
