@@ -79,6 +79,14 @@
            <version>8.0.31</version>
        </dependency>
        
+       <!-- https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc6 -->
+       <!--添加 Oracle 的jdbc工具包 用于oracle11g -->
+       <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc6</artifactId>
+            <version>11.2.0.4</version>
+       </dependency>
+       
        <!-- 添加 json 处理工具包 -->
        <dependency>
            <groupId>com.fasterxml.jackson.core</groupId>
