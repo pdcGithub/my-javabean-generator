@@ -35,7 +35,7 @@ import net.mickarea.generator.utils.MyStrUtil;
  * 一个抽象的控制器，用于实现 IController 接口。并将一些共用的东西，实现
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年6月15日
+ * @since 2024年6月15日-2024年6月16日
  */
 public abstract class AbstractController implements IController {
 	
@@ -142,8 +142,10 @@ public abstract class AbstractController implements IController {
 		
 		//时间戳
 		String tmpTabName = "sql_"+System.currentTimeMillis();
+		//预先处理一下 sql 语句（主要是最后的分号），有些数据库比如 Oracle ，带分号的sql语句会报错。
+		String preSql = MyStrUtil.isEmptyString(sql)?"":sql.replaceAll("(\\s*[;；]+\\s*)+$", "");
 		//执行查询
-		SimpleDBData sdb = MyDBUtil.mySqlQuery(ds, sql, null);
+		SimpleDBData sdb = MyDBUtil.mySqlQuery(ds, preSql, null);
 		
 		//由于一个sql语句，只能生成一个Java类，这里也就不需要循环了。
 		//如果sql执行异常，则返回异常信息
