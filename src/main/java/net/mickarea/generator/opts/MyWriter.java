@@ -20,7 +20,7 @@ import net.mickarea.generator.utils.MyStrUtil;
  * >> 一个私人的实体类字符输出工具
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2023年7月18日-2024年5月17日
+ * @since 2023年7月18日-2024年6月20日
  */
 public final class MyWriter {
 	
@@ -42,8 +42,9 @@ public final class MyWriter {
 	}
 
 	/**
-	 * >> 文件头信息输出
-	 * @return
+	 * 文件头信息输出
+	 * @param entityName 要生成的实体类的类名
+	 * @return Java Bean 类文件头信息（版权和协议声明信息）
 	 */
 	public static final String writeFileHeader(String entityName) {
 		StringBuffer sb = new StringBuffer();
@@ -62,8 +63,8 @@ public final class MyWriter {
 	}
 	
 	/**
-	 * >> 包信息和导入的类信息
-	 * @return
+	 * 包信息和导入的类信息
+	 * @return 包信息和导入的类信息
 	 */
 	public static final String writePackageAndImport() {
 		StringBuffer sb = new StringBuffer();
@@ -80,8 +81,11 @@ public final class MyWriter {
 	}
 	
 	/**
-	 * >> 绘制数据库表实体类信息
-	 * @return
+	 * 绘制数据库表实体类信息
+	 * @param entityName 要生成的实体类的类名
+	 * @param tableName 实体类对应的数据库表、视图名称。如果是虚拟实体VO，则不需要传入
+	 * @param tmpObj 待生成的实体类的结构信息
+	 * @return 类代码字符串
 	 */
 	public static final String writeTableCode(String entityName, String tableName, List<TabOrViewTmpObj> tmpObj) {
 		LocalDateTime time = LocalDateTime.now();
@@ -119,8 +123,8 @@ public final class MyWriter {
 	
 	/**
 	 * >> 属性处理
-	 * @param tmpList 
-	 * @return
+	 * @param tmpList 类结构信息
+	 * @return 关于类内部属性的描述代码字符串
 	 */
 	public static final String writeTableCodePropertyInfo(List<TabOrViewTmpObj> tmpList) {
 		StringBuffer sb = new StringBuffer();
@@ -148,9 +152,10 @@ public final class MyWriter {
 	}
 	
 	/**
-	 * >> 构造函数处理
-	 * @param tmpList
-	 * @return
+	 * 构造函数处理
+	 * @param beanName 实体类名
+	 * @param tmpList 类结构信息
+	 * @return 所生成的构造函数代码字符串
 	 */
 	public static final String writeTableCodeConstructorInfo(String beanName, List<TabOrViewTmpObj> tmpList) {
 		StringBuffer sb = new StringBuffer();
@@ -182,8 +187,8 @@ public final class MyWriter {
 	
 	/**
 	 * >> setter 和 getter 的处理
-	 * @param tmpList
-	 * @return
+	 * @param tmpList 类结构信息
+	 * @return setter 和 getter 方法的代码字符串
 	 */
 	public static final String writeTableCodeSetterAndGetter(List<TabOrViewTmpObj> tmpList) {
 		StringBuffer sb = new StringBuffer();
@@ -203,9 +208,10 @@ public final class MyWriter {
 	}
 	
 	/**
-	 * >> toString 处理
-	 * @param tmpList
-	 * @return
+	 * toString 处理
+	 * @param beanName 实体类名
+	 * @param tmpList 类结构信息
+	 * @return toString 方法的代码字符串
 	 */
 	public static final String writeTableCodeToString(String beanName, List<TabOrViewTmpObj> tmpList) {
 		StringBuffer sb = new StringBuffer();
