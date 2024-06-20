@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * &gt;&gt;&nbsp;一个字符串工具类
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月16日-2024年6月15日
+ * @since 2024年5月16日-2024年6月20日
  */
 public class MyStrUtil {
 

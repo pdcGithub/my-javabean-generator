@@ -35,7 +35,7 @@ import net.mickarea.generator.utils.MyStrUtil;
  * 一个抽象的控制器，用于实现 IController 接口。并将一些共用的东西，实现
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年6月15日-2024年6月16日
+ * @since 2024年6月15日-2024年6月20日
  */
 public abstract class AbstractController implements IController {
 	
@@ -160,7 +160,9 @@ public abstract class AbstractController implements IController {
 			TabOrViewTmpObj tmp = new TabOrViewTmpObj();
 			tmp.setColumnName(sdb.getColumnName().get(i));
 			tmp.setPropertyName(MyStrUtil.genNameFromColumn(tmp.getColumnName()));
-			tmp.setPropertyType(sdb.getColumnClassName().get(i).replaceFirst("java\\.lang\\.", ""));
+			// 处理一下特殊的 java 类名
+			tmp.setPropertyType(MyStrUtil.jdbcClassTypeTranslate(sdb.getColumnClassName().get(i)));
+			//
 			tmp.setColumnComment("");
 			tmp.setColumnKey("");
 			tmp.setColumnType(sdb.getColumnTypeName().get(i));

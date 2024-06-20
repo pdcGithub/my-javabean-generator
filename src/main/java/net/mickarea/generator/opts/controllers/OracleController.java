@@ -34,7 +34,7 @@ import net.mickarea.generator.utils.MyStrUtil;
  * 关于 Oracle 数据库的相关处理
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年6月16日
+ * @since 2024年6月16日-2024年6月20日
  */
 public class OracleController extends AbstractController {
 
@@ -214,7 +214,7 @@ public class OracleController extends AbstractController {
 			for(int i=0;i<tmpObjs.size();i++) {
 				if(tmpObjs.get(i).getColumnName().equalsIgnoreCase(colNames.get(i))) {
 					//
-					tmpObjs.get(i).setPropertyType(colClassNames.get(i).replaceFirst("java\\.lang\\.", ""));
+					tmpObjs.get(i).setPropertyType(MyStrUtil.jdbcClassTypeTranslate(colClassNames.get(i)));
 					tmpObjs.get(i).setPropertyName(MyStrUtil.genNameFromColumn(colNames.get(i)));
 				}
 			}
