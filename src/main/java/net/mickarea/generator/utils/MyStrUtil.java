@@ -174,4 +174,37 @@ public class MyStrUtil {
 		System.out.println(ERROR_PREFIX+message);
 	}
 	
+	/**
+	 * 将 一些特殊的 java 类 替换为 java 标准的 其它类。
+	 * @param oldTypeName 原有的java 类名
+	 * @return java 标准的类名
+	 */
+	public static final String jdbcClassTypeTranslate(String oldTypeName) {
+		String newTypeName = null;
+		switch(oldTypeName) {
+		case "oracle.sql.TIMESTAMP":
+			newTypeName = "java.sql.Timestamp";
+			break;
+		case "oracle.sql.ROWID":
+			newTypeName = "java.lang.String";
+			break;
+		case "oracle.jdbc.OracleClob":
+			newTypeName = "java.lang.String";
+			break;
+		case "oracle.jdbc.OracleNClob":
+			newTypeName = "java.lang.String";
+			break;
+		case "oracle.jdbc.OracleBlob":
+			newTypeName = "byte[]";
+			break;
+		default:
+			newTypeName = oldTypeName;
+			break;
+		}
+		//替换掉 
+		if(newTypeName!=null) {
+			newTypeName = newTypeName.replaceFirst("java\\.lang\\.", "");
+		}
+		return newTypeName;
+	}
 }
