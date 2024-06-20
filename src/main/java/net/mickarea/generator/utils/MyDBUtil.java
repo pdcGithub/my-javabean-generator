@@ -122,14 +122,7 @@ public final class MyDBUtil {
 				List<Object> tmpDatas = new ArrayList<Object>();
 				for(int i=1;i<=count;i++) {
 					//数据需要获取Object类型才行，否则后面无法处理
-					Object tmpObj = rs.getObject(i);
-					//2024-4-5    如果对象是数字类型，比如 BigInteger, Integer , Long , Double 之类的，则需要转换为 BigDecimal
-					//          这么处理主要是为了方便 java bean 在修改属性类型时，转换用
-					if(tmpObj instanceof Number) {
-						tmpObj = rs.getBigDecimal(i);
-					}
-					//处理完毕，放入临时变量
-					tmpDatas.add(tmpObj);
+					tmpDatas.add(translateDictInfoType(rs, i));
 				}
 				dataList.add(tmpDatas);
 			}
@@ -149,5 +142,51 @@ public final class MyDBUtil {
 				dataList.clear();
 			}
 		}
+	}
+	
+	/**
+	 * 根据从 JDBC 获取的原始数据对象，做一些类型转换，方便后续处理
+	 * @param rs 结果集对象
+	 * @param colIndex 列号 从 1 开始
+	 * @return 转换后的对象
+	 * @throws Exception 如果执行异常，直接抛出错误。
+	 */
+	private static final Object translateDictInfoType(ResultSet rs, int colIndex) throws Exception {
+		
+		//获取原始的数据对象
+		Object result = rs.getObject(colIndex);
+		if(result==null) {
+			//如果为空，则直接返回。
+			return result;
+		}
+		
+		//2024-4-5    如果对象是数字类型，比如 BigInteger, Integer , Long , Double 之类的，则需要转换为 BigDecimal
+		//          这么处理主要是为了方便 java bean 在修改属性类型时，转换用
+		if(result instanceof Number) {
+			result = rs.getBigDecimal(colIndex);
+		}
+		//对于oracle的TIMESTAMP类型，一律转为 java.sql.Timestamp
+		if(result instanceof oracle.sql.TIMESTAMP) {
+			result = rs.getTimestamp(colIndex);
+		}
+		//对于 oracle 的 ROWID 类型，一律转换为 String 类型
+		if(result instanceof oracle.sql.ROWID) {
+			result = ((oracle.sql.ROWID)result).stringValue();
+		}
+		//对于 oracle 的 OracleClob 类型，一律转换为 String 类型
+		if(result instanceof oracle.jdbc.OracleClob) {
+			result = ((oracle.sql.CLOB)result).stringValue();
+		}
+		//对于 oracle 的 OracleNClob 类型，一律转换为 String 类型
+		if(result instanceof oracle.jdbc.OracleNClob) {
+			result = ((oracle.sql.NCLOB)result).stringValue();
+		}
+		//对于 oracle 的 OracleBlob 类型，一律转换为 byte[] 类型
+		if(result instanceof oracle.jdbc.OracleBlob) {
+			result = ((oracle.sql.BLOB)result).getBytes();
+		}
+		
+		//处理完毕，放入临时变量
+		return result;
 	}
 }
