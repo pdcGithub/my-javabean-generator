@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import net.mickarea.generator.beans.TabOrViewTmpObj;
 import net.mickarea.generator.models.GenResult;
@@ -25,7 +26,7 @@ import net.mickarea.generator.opts.MyWriter;
  * &gt;&gt;&nbsp;文件读写操作工具类（默认的文件读写字符集为 UTF-8）
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月16日-2024年6月15日
+ * @since 2024年5月16日-2024年6月20日
  */
 public final class MyFileUtil {
 	
@@ -182,8 +183,14 @@ public final class MyFileUtil {
 		//定义返回结果
 		GenResult result = null;
 		
+		//判断是要生成实体(java bean)，还是要生成虚拟实体(virtual entity bean)
+		boolean isVo = false;
+		if(Pattern.matches("sql\\_\\d+", tabName)) {
+			isVo = true;
+		}
+		
 		//实体名称
-		String entityName = MyStrUtil.genNameFromTable(tabName);
+		String entityName = MyStrUtil.genNameFromTable(tabName)+(isVo?"VO":"");
 		//实体文件名成
 		String entityFileName = entityName+".java";
 		//实体文件路径
@@ -199,7 +206,7 @@ public final class MyFileUtil {
 		StringBuffer sb = new StringBuffer();
 		sb.append(MyWriter.writeFileHeader(entityName));
 		sb.append(MyWriter.writePackageAndImport());
-		sb.append(MyWriter.writeTableCode(entityName, tabName, tmpObjs));
+		sb.append(MyWriter.writeTableCode(entityName, (isVo?null:tabName), tmpObjs));
 		
 		//写文件
 		ValidResult myRe = saveToLocalpath(sb.toString(), fileDir, entityFileName, charSet);
