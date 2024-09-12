@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
  * &gt;&gt;&nbsp;一个字符串工具类
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月16日-2024年6月20日
+ * @since 2024年5月16日-2024年9月12日
  */
-public class MyStrUtil {
+public final class MyStrUtil {
 
 	//java 关键字；构造属性时不能和关键字同名
 	private static final String[] javaKeyWords = {"abstract", "assert",     "boolean", "break",     "byte",      "case",       "catch",    "char",    "class", "continue", 
@@ -207,4 +207,134 @@ public class MyStrUtil {
 		}
 		return newTypeName;
 	}
+	
+	/**
+	 * <p>将普通的字符串，转换为 Unicoe 字符串。</p>
+	 * <p>比如 "ceshi，我是𠮷" 转换为 \u0063\u0065\u0073\u0068\u0069\uFF0C\u6211\u662F\uD842\uDFB7</p>
+	 * <p>如果字符的码点大于 0xFFFF ，则会转为 两个。比如：𠮷 转换为 \uD842\uDFB7</p>
+	 * @param normalString 待转换的普通字符串
+	 * @return 一段 Unicode 格式的字符串。
+	 */
+	public static final String parseStrToUnicode(String normalString) {
+		//默认直接赋值，如果校验不通过，则直接返回原值。
+		String re = normalString;
+		//开始校验（字符串不为 null 即可）
+		if(normalString!=null && normalString.length()>0) {
+			//开始处理
+			StringBuffer sb = new StringBuffer();
+			//字符串 拆解为 字符数组
+			char[] arr = normalString.toCharArray();
+			//循环遍历，字符 转换为 16进制表示
+			for(int i=0;i<arr.length;i++) {
+				String tmpStr = Integer.toHexString(arr[i]);
+				switch(tmpStr.length()) {
+				case 1:
+					tmpStr = "000"+tmpStr;
+					break;
+				case 2:
+					tmpStr = "00"+tmpStr;
+					break;
+				case 3:
+					tmpStr = "0"+tmpStr;
+					break;
+				}
+				sb.append("\\u"+tmpStr.toUpperCase());
+			}
+			//结果重新赋值
+			String tmp = sb.toString();
+			//如果转换没有结果，则返回原值，并输出异常
+			if(tmp.length()>0) {
+				re = tmp;
+			}else {
+				mylogger.error(String.format("将内容 normalString=%s，转换为 Unicode 字符异常。",normalString));
+			}
+		}
+		//返回结果
+		return re;
+	}
+	
+	/**
+	 * <p>将Unicoe 字符串，转换为 普通的字符串。</p>
+	 * <p>比如 \u0063\u0065\u0073\u0068\u0069\uFF0C\u6211\u662F\uD842\uDFB7 转换为  "ceshi，我是𠮷"</p>
+	 * @param unicodeString
+	 * @return 一段 普通的字符串。
+	 */
+	public static final String parseUnicodeToStr(String unicodeString) {
+		//默认直接赋值，如果校验不通过，则直接返回原值。
+		String re = unicodeString;
+		//开始校验（不为空，且 需要有 \\\\u 这个字符串）
+		if(!isEmptyString(unicodeString) && unicodeString.contains("u")) {
+			//按字符串，拆分。拆分后，可能有空的内容在数组，需要跳过处理
+			String[] uArr = unicodeString.split("\\\\u");
+			//
+			StringBuffer sb = new StringBuffer();
+			//
+			for(int i=0;i<uArr.length;i++) {
+				//如果为空，则跳过
+				if(isEmptyString(uArr[i])) {
+					continue;
+				}
+				//将字符串转为 数字，然后转 字符。
+				char charInt = 0;
+				try {
+					if(!Pattern.matches("[a-zA-Z0-9]{4}", uArr[i])) {
+						throw new NumberFormatException("接受的数字超过 0xFFFF，请检查。");
+					}
+					charInt = (char)Integer.parseInt(uArr[i], 16);
+					sb.append(charInt);
+				} catch (NumberFormatException e) {
+					mylogger.error(String.format("将 16进制字符串=%s，转换为 数字异常。%s", uArr[i], e.getMessage()));
+					break;
+				} catch (Exception e2) {
+					mylogger.error(String.format("将 字符=%s 信息，构造字符串异常。 %s", charInt, e2.getMessage()));
+					break;
+				}
+			}
+			//结果重新赋值
+			String tmp = sb.toString();
+			//如果转换没有结果，则返回原值，并输出异常
+			if(!isEmptyString(tmp)) {
+				re = tmp;
+			}else {
+				mylogger.error(String.format("将内容 unicodeString=%s，转换为 普通 字符异常。",unicodeString));
+			}
+		}
+		//返回结果
+		return re;
+	}
+	
+	/*
+	public static void main(String[] args) {
+		
+		//原始字符串
+		String a1 = "ceshi，我是𠮷";
+		String a2 = "aaaaaaaa";
+		String a3 = "       				";
+		String a4 = "     \n       \t      \r       ";
+		String a5 = null;
+		String a6 = "";
+		System.out.println("value='"+parseStrToUnicode(a1)+"'");
+		System.out.println("value='"+parseStrToUnicode(a2)+"'");
+		System.out.println("value='"+parseStrToUnicode(a3)+"'");
+		System.out.println("value='"+parseStrToUnicode(a4)+"'");
+		System.out.println("value='"+parseStrToUnicode(a5)+"'");
+		System.out.println("value='"+parseStrToUnicode(a6)+"'");
+		
+		//unicode
+		String u1 = "";
+		String u2 = null;
+		String u3 = "   ";
+		String u4 = "		   \t   \r   \n";
+		String u5 = "\\u0063\\u0065\\u0073\\u0068\\u0069\\uFF0C\\u6211\\u662F\\uD842\\uDFB7";
+		String u6 = "\\u20BB7";
+		String u7 = "\\uSSSS";
+		System.out.println("unicode='"+parseUnicodeToStr(u1)+"'");
+		System.out.println("unicode='"+parseUnicodeToStr(u2)+"'");
+		System.out.println("unicode='"+parseUnicodeToStr(u3)+"'");
+		System.out.println("unicode='"+parseUnicodeToStr(u4)+"'");
+		System.out.println("unicode='"+parseUnicodeToStr(u5)+"'");
+		System.out.println("unicode='"+parseUnicodeToStr(u6)+"'");
+		System.out.println("unicode='"+parseUnicodeToStr(u7)+"'");
+	}
+	*/
 }
