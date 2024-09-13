@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * &gt;&gt;&nbsp;一个字符串工具类
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月16日-2024年9月12日
+ * @since 2024年5月16日-2024年9月13日
  */
 public final class MyStrUtil {
 
@@ -277,11 +277,12 @@ public final class MyStrUtil {
 				//将字符串转为 数字，然后转 字符。
 				char charInt = 0;
 				try {
-					if(!Pattern.matches("[a-zA-Z0-9]{4}", uArr[i])) {
-						throw new NumberFormatException("接受的数字超过 0xFFFF，请检查。");
+					if(!Pattern.matches("[a-zA-Z0-9]{1,6}", uArr[i])) {
+						throw new NumberFormatException("数字("+uArr[i]+")超过能接受的数字范围 (0x0 - 0x10FFFF)，请检查。");
 					}
-					charInt = (char)Integer.parseInt(uArr[i], 16);
-					sb.append(charInt);
+					//改进数据识别，因为有些二进制数据(比如：\u20BB7)可能是 4 字节的。
+					//为了能够直接识别 ，不能用 char 来转换因为它是2字节的。
+					sb.append(new String(new int[] {Integer.parseInt(uArr[i], 16)}, 0, 1));
 				} catch (NumberFormatException e) {
 					mylogger.error(String.format("将 16进制字符串=%s，转换为 数字异常。%s", uArr[i], e.getMessage()));
 					break;
@@ -292,8 +293,8 @@ public final class MyStrUtil {
 			}
 			//结果重新赋值
 			String tmp = sb.toString();
-			//如果转换没有结果，则返回原值，并输出异常
-			if(!isEmptyString(tmp)) {
+			//如果转换没有结果，则返回原值，并输出异常（这里不能直接用 isEmptyString ，因为可能是空白字符）
+			if(tmp!=null && tmp.length()>0) {
 				re = tmp;
 			}else {
 				mylogger.error(String.format("将内容 unicodeString=%s，转换为 普通 字符异常。",unicodeString));
@@ -327,14 +328,26 @@ public final class MyStrUtil {
 		String u4 = "		   \t   \r   \n";
 		String u5 = "\\u0063\\u0065\\u0073\\u0068\\u0069\\uFF0C\\u6211\\u662F\\uD842\\uDFB7";
 		String u6 = "\\u20BB7";
-		String u7 = "\\uSSSS";
-		System.out.println("unicode='"+parseUnicodeToStr(u1)+"'");
-		System.out.println("unicode='"+parseUnicodeToStr(u2)+"'");
-		System.out.println("unicode='"+parseUnicodeToStr(u3)+"'");
-		System.out.println("unicode='"+parseUnicodeToStr(u4)+"'");
-		System.out.println("unicode='"+parseUnicodeToStr(u5)+"'");
-		System.out.println("unicode='"+parseUnicodeToStr(u6)+"'");
-		System.out.println("unicode='"+parseUnicodeToStr(u7)+"'");
+		String u7 = "\\u3";
+		String u8 = "\\u63";
+		String u9 = "\\u165";
+		String u10 = "\\u662F";
+		String u11 = "\\u1D306";
+		String u12 = "\\uSSSS";
+		String u13 = "\\uSSSSSSS";
+		System.out.println("unicode1='"+parseUnicodeToStr(u1)+"'");
+		System.out.println("unicode2='"+parseUnicodeToStr(u2)+"'");
+		System.out.println("unicode3='"+parseUnicodeToStr(u3)+"'");
+		System.out.println("unicode4='"+parseUnicodeToStr(u4)+"'");
+		System.out.println("unicode5='"+parseUnicodeToStr(u5)+"'");
+		System.out.println("unicode6='"+parseUnicodeToStr(u6)+"'");
+		System.out.println("unicode7='"+parseUnicodeToStr(u7)+"'");
+		System.out.println("unicode8='"+parseUnicodeToStr(u8)+"'");
+		System.out.println("unicode9='"+parseUnicodeToStr(u9)+"'");
+		System.out.println("unicode10='"+parseUnicodeToStr(u10)+"'");
+		System.out.println("unicode11='"+parseUnicodeToStr(u11)+"'");
+		System.out.println("unicode12='"+parseUnicodeToStr(u12)+"'");
+		System.out.println("unicode13='"+parseUnicodeToStr(u13)+"'");
 	}
 	*/
 }
