@@ -10,16 +10,21 @@ Copyright (c) 2024 Michael Pang.
 *******************************************************************************************************/
 package net.mickarea.generator.utils;
 
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * &gt;&gt;&nbsp;一个字符串工具类
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月16日-2024年9月13日
+ * @since 2024年5月16日-2024年9月28日
  */
 public final class MyStrUtil {
 
@@ -39,6 +44,13 @@ public final class MyStrUtil {
 	
 	//返回消息的前缀（失败）
 	public static final String ERROR_PREFIX = "error:";
+	
+	//消息类型，成功
+	public static final String MSG_TYPE_SUCCESS = "success";
+	//消息类型，错误
+	public static final String MSG_TYPE_ERROR = "error";
+	//消息类型，转换时造成的失败
+	public static final String MSG_TYPE_FAULT = "fault";
 	
 	/**
 	 * 私有构造函数，防止被 new 创建对象
@@ -160,18 +172,63 @@ public final class MyStrUtil {
 	
 	/**
 	 * 使用标准输出流，输出执行成功的消息
+	 * <p>消息格式如下：{"status":"%s", "oriMessage":"%s", "encodeMessage":"%s"}</p>
 	 * @param message 要输出的消息
 	 */
 	public static void successOut(String message) {
-		System.out.println(SUCCESS_PREFIX+message);
+		MyStrUtil.standardOutput(MSG_TYPE_SUCCESS, message);
 	}
 	
 	/**
 	 * 使用标准输出流，输出执行失败的消息
+	 * <p>消息格式如下：{"status":"%s", "oriMessage":"%s", "encodeMessage":"%s"}</p>
 	 * @param message 要输出的消息
 	 */
 	public static void errorOut(String message) {
-		System.out.println(ERROR_PREFIX+message);
+		MyStrUtil.standardOutput(MSG_TYPE_ERROR, message);
+	}
+	
+	/**
+	 * <p>关于消息的标准输出，消息将会以json字符串的方式，直接输出到标准输出流；不是返回字符串</p>
+	 * <p>因为 success 和 error 两种输出方式 基本一致。所以共用一个实现即可。</p>
+	 * <p>消息格式如下：{"status":"%s", "oriMessage":"%s", "encodeMessage":"%s"}</p>
+	 * @param type 消息的类型
+	 * @param message 要显示的消息
+	 */
+	public static final void standardOutput(String type, String message) {
+		//定义一个用于输出的 map 对象
+		Map<String, String> outMap = new HashMap<String, String>();
+		//设置消息状态
+		outMap.put("status", type);
+		//设置原始消息
+		outMap.put("oriMessage", message);
+		//设置转格式后的消息
+		String tmpMsg ;
+		try {
+			//在转码时，空格会被转换为 + 号，所以要替换掉
+			tmpMsg = URLEncoder.encode(message, "UTF-8").replaceAll("\\+", "%20");
+		} catch (Exception e) {
+			//设置消息异常时的默认信息
+			tmpMsg = "encode error ["+e.getMessage()+"]";
+			//将异常信息，写入 jar 执行的日志文件
+			mylogger.error("消息转换编码异常", e);
+		}
+		outMap.put("encodeMessage", tmpMsg);
+		//输出信息
+		ObjectMapper om = new ObjectMapper();
+		try {
+			//正常输出
+			System.out.println(om.writeValueAsString(outMap));
+		} catch (Exception e2) {
+			//将异常信息，写入 jar 执行的日志文件
+			mylogger.error("消息转换编码异常", e2);
+			//如果转 json 失败 ，我们还是要处理，并输出 对应的信息
+			String template = "{\"status\":\"%s\", \"oriMessage\":\"%s\", \"encodeMessage\":\"%s\"}";
+			System.out.println(String.format(template,
+					MSG_TYPE_FAULT,
+					"对象转换异常，无法转换输出信息",
+					"%E5%AF%B9%E8%B1%A1%E8%BD%AC%E6%8D%A2%E5%BC%82%E5%B8%B8%EF%BC%8C%E6%97%A0%E6%B3%95%E8%BD%AC%E6%8D%A2%E8%BE%93%E5%87%BA%E4%BF%A1%E6%81%AF"));
+		}
 	}
 	
 	/**

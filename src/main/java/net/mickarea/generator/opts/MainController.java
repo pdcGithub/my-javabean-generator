@@ -21,7 +21,7 @@ import net.mickarea.generator.utils.MyStrUtil;
  * 一个主控制器.当入口程序获取了适合的参数，则根据参数，动态调用对应的实现代码
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年6月11日-2024年6月12日
+ * @since 2024年6月11日-2024年9月28日
  */
 public class MainController {
 	
@@ -101,7 +101,7 @@ public class MainController {
 		try {
 			//如果参数尚未初始化，则提示
 			if(cArgs==null) {
-				throw new Exception("the args from command is null.");
+				throw new Exception("接收到的参数内容为 null 值.");
 			}
 			//参数校验
 			ValidResult validRe = cArgs.valid();
@@ -130,11 +130,14 @@ public class MainController {
 			MyStrUtil.mylogger.error("[执行处理方法 "+methodName+" 异常]", e);
 			//将异常信息处理一下输出到标准输出流
 			if(e instanceof ClassNotFoundException) {
-				MyStrUtil.errorOut("class "+e.getMessage()+" not found, database type ["+cArgs.getDatabaseType()+"] not supported.");
+				String temp = "%s, 暂时不支持该数据库 [%s] 的访问。";
+				MyStrUtil.errorOut(String.format(temp, e.getMessage(), cArgs.getDatabaseType()));
 			}else if(e instanceof NoSuchMethodException) {
-				MyStrUtil.errorOut("method "+methodName+" of Controller not found.");
+				String temp = "处理方法 %s 不存在。";
+				MyStrUtil.errorOut(String.format(temp, methodName));
 			}else {
-				MyStrUtil.errorOut("some error was found ["+e.getMessage()+"], check log file for more details.");
+				String temp = "发现了一些不寻常的异常，信息如下[%s]，具体请检查日志信息。";
+				MyStrUtil.errorOut(String.format(temp, e.getMessage()));
 			}
 		}
 	}

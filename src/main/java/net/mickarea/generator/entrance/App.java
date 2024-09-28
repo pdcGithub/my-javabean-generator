@@ -18,7 +18,7 @@ import net.mickarea.generator.utils.MyStrUtil;
  * 这是一个Java代码生成器的入口程序
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月8日-2024年6月12日
+ * @since 2024年5月8日-2024年9月28日
  */
 public class App {
 
@@ -59,11 +59,11 @@ public class App {
 				break;
 			default:
 				//参数不齐全，则无法处理
-				MyStrUtil.errorOut("jar file need more parameters.");
+				MyStrUtil.errorOut("jar 文件所获取的参数不全，请检查。");
 			}
 		}else {
 			//如果没有入口参数，则返回一段欢迎信息
-			MyStrUtil.successOut("Welcome! The Jar works perfectly!");
+			MyStrUtil.successOut("欢迎使用 mickarea.net 出品! 这个 Java 程序包可以完美运行!");
 		}
 	}
 

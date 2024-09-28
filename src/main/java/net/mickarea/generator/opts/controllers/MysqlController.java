@@ -34,7 +34,7 @@ import net.mickarea.generator.utils.MyStrUtil;
  * 关于MySQL数据库的相关处理
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年6月11日-2024年6月15日
+ * @since 2024年6月11日-2024年9月28日
  */
 public class MysqlController extends AbstractController {
 
@@ -57,9 +57,9 @@ public class MysqlController extends AbstractController {
 				throw new Exception(sdb.getResponseInfo());
 			}else if(sdb.getData()!=null && sdb.getData().length>0) {
 				result.setOk(true);
-				result.setData("database connnection is ok.");
+				result.setData("数据库连接成功.");
 			}else {
-				throw new Exception("something wrong while connecting db.");
+				throw new Exception("在连接数据库时，发生了一些异常.");
 			}
 		}catch(Exception e) {
 			result.setOk(false);
@@ -113,7 +113,7 @@ public class MysqlController extends AbstractController {
 				result.setMessage("");
 				result.setData(mapper.writeValueAsString(tmpDatas));
 			}else {
-				throw new Exception("nothing was returned by database.");
+				throw new Exception("数据库什么内容都没有返回.");
 			}
 			
 		}catch(Exception e) {
@@ -164,7 +164,7 @@ public class MysqlController extends AbstractController {
 			}
 			
 			if(sdb.getResponseStatus().equals(SimpleDBData.OK) && (sdb.getData()==null || sdb.getData().length<=0)) {
-				result = new GenResult(tabName, "", false, "cannot find anything of this table", "", System.currentTimeMillis()-start);
+				result = new GenResult(tabName, "", false, "找不到任何关于这个表的相关信息", "", System.currentTimeMillis()-start);
 				return result;
 			}
 			
@@ -202,7 +202,7 @@ public class MysqlController extends AbstractController {
 			
 		}catch(Exception e) {
 			MyStrUtil.mylogger.error("执行文件生成处理异常", e);
-			result = new GenResult(tabName, "", false, "something was wrong. check log file for more details.", "", System.currentTimeMillis()-start);
+			result = new GenResult(tabName, "", false, "执行文件生成处理异常. 请检查日志文件以查看详细信息.", "", System.currentTimeMillis()-start);
 		}
 		
 		return result;
