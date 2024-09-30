@@ -7,6 +7,8 @@
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <!-- 设置日志内容编码 -->
+            <charset>UTF-8</charset>
         </encoder>
     </appender>
     
@@ -14,6 +16,8 @@
         <file>logs/jar-run.log</file>
         <encoder>
             <pattern>%d [%thread] %-5level %logger{36} [%file : %line] - %msg%n</pattern>
+            <!-- 设置日志内容编码 -->
+            <charset>UTF-8</charset>
         </encoder>
     </appender>
     
