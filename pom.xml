@@ -87,6 +87,14 @@
             <version>11.2.0.4</version>
        </dependency>
        
+       <!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
+       <!-- 添加 MS SQL Server jdbc 包。 -->
+	   <dependency>
+	       <groupId>com.microsoft.sqlserver</groupId>
+	       <artifactId>mssql-jdbc</artifactId>
+	       <version>12.8.1.jre8</version>
+	   </dependency>
+       
        <!-- 添加 json 处理工具包 -->
        <dependency>
            <groupId>com.fasterxml.jackson.core</groupId>
