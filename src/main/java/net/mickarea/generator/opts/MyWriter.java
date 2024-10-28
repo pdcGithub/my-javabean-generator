@@ -20,7 +20,7 @@ import net.mickarea.generator.utils.MyStrUtil;
  * >> 一个私人的实体类字符输出工具
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2023年7月18日-2024年6月20日
+ * @since 2023年7月18日-2024年10月28日
  */
 public final class MyWriter {
 	
@@ -70,6 +70,7 @@ public final class MyWriter {
 		StringBuffer sb = new StringBuffer();
 		sb.append("package net.mickarea;"+lineSeperator);
 		sb.append(lineSeperator);
+		sb.append("import net.mickarea.tools.annotation.MyColumnReadOnly;"+lineSeperator);
 		sb.append("import net.mickarea.tools.annotation.MyAutoIncrement;"+lineSeperator);
 		sb.append("import net.mickarea.tools.annotation.MyColumn;"+lineSeperator);
 		sb.append("import net.mickarea.tools.annotation.MyIdGroup;"+lineSeperator);
@@ -133,6 +134,9 @@ public final class MyWriter {
 			for(TabOrViewTmpObj t: tmpList) {
 				if(t.getExtra().toLowerCase().contains("auto")) {
 					sb.append(space4+"@MyAutoIncrement"+lineSeperator);
+				}
+				if(t.getExtra().toLowerCase().contains("readonly")) {
+					sb.append(space4+"@MyColumnReadOnly"+lineSeperator);
 				}
 				if(t.getColumnKey().toLowerCase().contains("pri")) {
 					sb.append(space4+"@MyIdGroup"+lineSeperator);

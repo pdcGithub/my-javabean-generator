@@ -34,7 +34,7 @@ import net.mickarea.generator.utils.MyStrUtil;
  * 关于 MS SQL Server 数据库的相关处理（由于测试条件有限，这个类是使用 sql server 2016 版测试的。如果其它版本有问题，可以单独写一个 controller 给其它版本。）
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年10月15日-2024年10月18日
+ * @since 2024年10月15日-2024年10月28日
  */
 public class SqlserverController extends AbstractController {
 
@@ -154,8 +154,10 @@ public class SqlserverController extends AbstractController {
 					+ "			  and x.is_unique=1 \r\n"
 					+ "	       ) then 'PRI' else '' end \r\n"
 					+ "		) as column_key,  \r\n"
-					+ "	   (case when COLUMNPROPERTY(o.object_id, i.COLUMN_NAME, 'IsIdentity')=1  \r\n"
-					+ "	         then 'auto_increment'else '' end \r\n"
+					+ "	   (case when COLUMNPROPERTY(o.object_id, i.COLUMN_NAME, 'IsIdentity')=1 then 'auto_increment' \r\n"
+					+ "          when i.DATA_TYPE = 'timestamp' then 'readonly' \r\n"
+					+ "          else '' \r\n"
+					+ "      end \r\n"
 					+ "	    ) as extra,  \r\n"
 					+ "	   '' column_comment \r\n"
 					+ "  from sys.objects o  \r\n"
