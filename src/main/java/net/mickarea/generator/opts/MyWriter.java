@@ -164,7 +164,7 @@ public final class MyWriter {
 	public static final String writeTableCodeConstructorInfo(String beanName, List<TabOrViewTmpObj> tmpList) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(space4+"/**"+lineSeperator);
-		sb.append(space4+" * >> 构造函数"+lineSeperator);
+		sb.append(space4+" * 构造函数"+lineSeperator);
 		sb.append(space4+" */"+lineSeperator);
 		//无参构造函数
 		sb.append(space4+"public "+beanName+"() {"+lineSeperator);
