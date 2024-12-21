@@ -20,7 +20,7 @@ import net.mickarea.generator.utils.MyStrUtil;
  * >> 一个私人的实体类字符输出工具
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2023年7月18日-2024年10月28日
+ * @since 2023年7月18日-2024年12月21日
  */
 public final class MyWriter {
 	
@@ -77,6 +77,7 @@ public final class MyWriter {
 		sb.append("import net.mickarea.tools.annotation.MyTableOrView;"+lineSeperator);
 		sb.append("import net.mickarea.tools.annotation.MyVirtualEntity;"+lineSeperator);
 		sb.append("import net.mickarea.tools.utils.Stdout;"+lineSeperator);
+		sb.append("import net.mickarea.tools.utils.StrUtil;"+lineSeperator);
 		sb.append(lineSeperator);
 		return sb.toString();
 	}
@@ -221,24 +222,7 @@ public final class MyWriter {
 		StringBuffer sb = new StringBuffer();
 		sb.append(space4+"@Override"+lineSeperator);
 		sb.append(space4+"public String toString() {"+lineSeperator);
-		sb.append(space4+space4);
-		sb.append("String s = \""+beanName+"{");
-		for(int i=0;i<tmpList.size();i++) {
-			sb.append(tmpList.get(i).getPropertyName()+":%s");
-			if(i<tmpList.size()-1) {
-				sb.append(", ");
-			}
-		}
-		sb.append("}\";"+lineSeperator);
-		sb.append(space4+space4);
-		sb.append("return Stdout.fplToAnyWhere(s, ");
-		for(int i=0;i<tmpList.size();i++) {
-			sb.append("this."+tmpList.get(i).getPropertyName());
-			if(i<tmpList.size()-1) {
-				sb.append(", ");
-			}
-		}
-		sb.append(");"+lineSeperator);
+		sb.append(space4+space4+"return StrUtil.getJavaBeanFieldsInfo(this);"+lineSeperator);
 		sb.append(space4+"}"+lineSeperator);
 		return sb.toString();
 	}
