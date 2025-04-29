@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * &gt;&gt;&nbsp;一个字符串工具类
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月16日-2024年9月28日
+ * @since 2024年5月16日-2025年4月29日
  */
 public final class MyStrUtil {
 
@@ -180,12 +180,38 @@ public final class MyStrUtil {
 	}
 	
 	/**
+	 * 使用标准输出流，输出执行成功的消息（这里和 successOut 不同，这里可以选择输出的是 json格式 还是 原始格式）
+	 * @param message 要输出的消息。
+	 * @param isConsole 是否命令行终端。如果为 true ，则直接输出，如果是 false 用 json 方式输出。
+	 */
+	public static void successOut(String message, boolean isConsole) {
+		if(isConsole) {
+			System.out.print(message);
+		}else {
+			MyStrUtil.standardOutput(MSG_TYPE_SUCCESS, message);
+		}
+	}
+	
+	/**
 	 * 使用标准输出流，输出执行失败的消息
 	 * <p>消息格式如下：{"status":"%s", "oriMessage":"%s", "encodeMessage":"%s"}</p>
 	 * @param message 要输出的消息
 	 */
 	public static void errorOut(String message) {
 		MyStrUtil.standardOutput(MSG_TYPE_ERROR, message);
+	}
+	
+	/**
+	 * 使用标准输出流，输出执行失败的消息（这里和 errorOut 不同，这里可以选择输出的是 json格式 还是 原始格式）
+	 * @param message 要输出的消息。
+	 * @param isConsole 是否命令行终端。如果为 true ，则直接输出，如果是 false 用 json 方式输出。
+	 */
+	public static void errorOut(String message, boolean isConsole) {
+		if(isConsole) {
+			System.out.print(message);
+		}else {
+			MyStrUtil.standardOutput(MSG_TYPE_ERROR, message);
+		}
 	}
 	
 	/**

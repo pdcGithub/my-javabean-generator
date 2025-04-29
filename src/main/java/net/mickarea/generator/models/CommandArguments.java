@@ -17,7 +17,7 @@ import net.mickarea.generator.utils.MyValidUtil;
  * &gt;&gt;&nbsp;由命令行传入的参数对象
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月15日
+ * @since 2024年5月15日-2025年4月29日
  */
 public class CommandArguments {
 
@@ -37,6 +37,8 @@ public class CommandArguments {
 	private String actionType ; //动作类型：object / sql
 	private String objOrSql ; //根据actionType切换，库表字符串 或者 一个sql 语句
 	private String fileDir ; //文件的保存路径
+	
+	private boolean isConsole; //是否运行在单独的命令行
 	
 	/**
 	 * 无参构造函数
@@ -151,7 +153,7 @@ public class CommandArguments {
 	 */
 	public CommandArguments(NewCommToolArgs a) {
 		super();
-		this.databaseType = a.databaseType.name();
+		this.databaseType = a.databaseType!=null?a.databaseType.name():null;
 		this.poolName = a.poolName;
 		this.jdbcDriver = a.jdbcDriverName;
 		this.jdbcUrl = a.jdbcUrl;
@@ -164,13 +166,15 @@ public class CommandArguments {
 		this.schema = a.schema;
 		this.schemaUser = a.schemaUser;
 		this.charSet = a.fileCharset;
-		this.actionType = a.actionType.name().toLowerCase();
+		this.actionType = a.actionType!=null?a.actionType.name().toLowerCase():null;
 		if(a.actionType == ACTION_TYPE.OBJECT) {
 			this.objOrSql = a.sqlObjects;
 		}else {
 			this.objOrSql = a.sqlString;
 		}
 		this.fileDir = a.entityDir;
+		//
+		this.isConsole = a.console;
 	}
 
 	/**
@@ -396,6 +400,13 @@ public class CommandArguments {
 	public void setFileDir(String fileDir) {
 		this.fileDir = fileDir;
 	}
+	
+	public boolean isConsole() {
+		return isConsole;
+	}
+	public void setConsole(boolean isConsole) {
+		this.isConsole = isConsole;
+	}
 
 	/**
 	 * &gt;&gt;&nbsp; 校验参数的有效性
@@ -408,16 +419,14 @@ public class CommandArguments {
 				charSet, actionType, objOrSql, fileDir);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		return "CommandArguments [databaseType=" + databaseType + ", poolName=" + poolName + ", jdbcDriver="
 				+ jdbcDriver + ", jdbcUrl=" + jdbcUrl + ", dbUser=" + dbUser + ", dbPasswd=" + dbPasswd
 				+ ", isAutoCommit=" + isAutoCommit + ", connTimeout=" + connTimeout + ", minThreadNum=" + minThreadNum
 				+ ", maxThreadNum=" + maxThreadNum + ", schema=" + schema + ", schemaUser=" + schemaUser + ", charSet="
-				+ charSet + ", actionType=" + actionType + ", objOrSql=" + objOrSql + ", fileDir=" + fileDir + "]";
+				+ charSet + ", actionType=" + actionType + ", objOrSql=" + objOrSql + ", fileDir=" + fileDir
+				+ ", isConsole=" + isConsole + "]";
 	}
 	
 }

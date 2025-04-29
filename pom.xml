@@ -42,7 +42,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>net.mickarea.generator.entrance.App</mainClass>
+                                    <mainClass>net.mickarea.generator.entrance.NewApp</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>

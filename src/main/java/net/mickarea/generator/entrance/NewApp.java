@@ -55,12 +55,20 @@ public class NewApp {
 		
 		//创建命令行参数识别对象
 		JCommander cmd = JCommander.newBuilder().addObject(toolArgs).build();
+		//因为如果参校验报错，则没法获取 --console 参数，所以这里自己获取
+		for(int i=0;i<args.length;i++) {
+			if("--console".equalsIgnoreCase(args[i])) {
+				// 如果有这个参数，则赋值并跳出
+				toolArgs.console = true;
+				break;
+			}
+		}
 		
 		//这里进行参数校验 和 转换（校验出错，则抛出异常）===== 单个参数校验
 		try {
 			cmd.parse(args);
 		}catch(ParameterException e1) {
-			MyStrUtil.errorOut(e1.getMessage());
+			MyStrUtil.errorOut(e1.getMessage(), toolArgs.console);
 			return ;
 		}
 		
@@ -76,7 +84,7 @@ public class NewApp {
 		String execMsg = new MyGlobalValidator(toolArgs).valid();
 		if(execMsg!=null && execMsg.length()>0) {
 			//抛出异常
-			MyStrUtil.errorOut(execMsg);
+			MyStrUtil.errorOut(execMsg, toolArgs.console);
 			return ;
 		}
 		
@@ -88,7 +96,7 @@ public class NewApp {
 		switch(mode) {
 		case JAR_TEST:
 			// jar 包测试 模式
-			MyStrUtil.successOut("欢迎使用 mickarea.net 出品! 这个 Java 程序包可以完美运行!");
+			MyStrUtil.successOut("欢迎使用 mickarea.net 出品! 这个 Java 程序包可以完美运行!", cArgs.isConsole());
 			break;
 		case DB_CONN_TEST:
 			//测试数据库 是否可以正常连接
@@ -104,11 +112,11 @@ public class NewApp {
 			break;
 		case JAVA_FEATURE_GEN:
 			// Java 功能生成 模式
-			MyStrUtil.errorOut(String.format("the feature is developing.", mode));
+			MyStrUtil.errorOut(String.format("the feature is developing.", mode), cArgs.isConsole());
 			break;
 		default:
 			// 其它情况，暂时不处理
-			MyStrUtil.errorOut(String.format("the mode [%s] is not supported.", mode));
+			MyStrUtil.errorOut(String.format("the mode [%s] is not supported.", mode), cArgs.isConsole());
 			break;
 		}
 	}

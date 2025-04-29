@@ -121,7 +121,7 @@ public class MainController {
 			//获取结果
 			SqlResult sqlRe = (SqlResult)resultObj;
 			if(sqlRe.getOk()) {
-				MyStrUtil.successOut(sqlRe.getData());
+				MyStrUtil.successOut(sqlRe.getData(), cArgs.isConsole());
 			}else {
 				throw new Exception(sqlRe.getMessage());
 			}
@@ -131,13 +131,13 @@ public class MainController {
 			//将异常信息处理一下输出到标准输出流
 			if(e instanceof ClassNotFoundException) {
 				String temp = "%s, 暂时不支持该数据库 [%s] 的访问。";
-				MyStrUtil.errorOut(String.format(temp, e.getMessage(), cArgs.getDatabaseType()));
+				MyStrUtil.errorOut(String.format(temp, e.getMessage(), cArgs.getDatabaseType()), cArgs.isConsole());
 			}else if(e instanceof NoSuchMethodException) {
 				String temp = "处理方法 %s 不存在。";
-				MyStrUtil.errorOut(String.format(temp, methodName));
+				MyStrUtil.errorOut(String.format(temp, methodName), cArgs.isConsole());
 			}else {
 				String temp = "发现了一些不寻常的异常，信息如下[%s]，具体请检查日志信息。";
-				MyStrUtil.errorOut(String.format(temp, e.getMessage()));
+				MyStrUtil.errorOut(String.format(temp, e.getMessage()), cArgs.isConsole());
 			}
 		}
 	}

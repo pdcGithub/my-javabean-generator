@@ -30,7 +30,7 @@ import net.mickarea.generator.validators.ThreadNumValidator;
  * 这是一个参数接收的类。它用于处理 pdc common tool 这个 GUI 工具的输入参数
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年4月22日-2025年4月25日
+ * @since 2025年4月22日-2025年4月29日
  */
 public class NewCommToolArgs {
 
@@ -49,6 +49,13 @@ public class NewCommToolArgs {
 	@Parameter(names = {"-h", "--help"}, 
 			description = "Show help informations.", help = true)
 	public boolean help;
+	
+	/**
+	 * 这个是用于区分你是命令行 还是 GUI 的一个运行参数。当为 true，输出将会更简短。因为 GUI 工具需要一个 json 信息。而命令行模式不需要
+	 */
+	@Parameter(names = {"--console"},
+			description = "If you are running on console by yourself, please add this parameter. The output informations will be shorter.")
+	public boolean console = false;
 	
 	// =========================== 上面是一般参数，下面是特殊参数
 	
