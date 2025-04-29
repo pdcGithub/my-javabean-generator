@@ -10,6 +10,7 @@ Copyright (c) 2024 Michael Pang.
 *******************************************************************************************************/
 package net.mickarea.generator.models;
 
+import net.mickarea.generator.constants.MyConstants.ACTION_TYPE;
 import net.mickarea.generator.utils.MyValidUtil;
 
 /**
@@ -142,6 +143,34 @@ public class CommandArguments {
 		this.actionType = actionType;
 		this.objOrSql = objOrSql;
 		this.fileDir = fileDir;
+	}
+	
+	/**
+	 * 参数赋值，将 命令行接收的参数，转化为 功能要用的参数
+	 * @param a 命令行接收到的参数对象
+	 */
+	public CommandArguments(NewCommToolArgs a) {
+		super();
+		this.databaseType = a.databaseType.name();
+		this.poolName = a.poolName;
+		this.jdbcDriver = a.jdbcDriverName;
+		this.jdbcUrl = a.jdbcUrl;
+		this.dbUser = a.dbUserName;
+		this.dbPasswd = a.dbUserPasswd;
+		this.isAutoCommit = a.isAutoCommit+"";
+		this.connTimeout = a.connectionTimeout+"";
+		this.minThreadNum = a.minThread+"";
+		this.maxThreadNum = a.maxThread+"";
+		this.schema = a.schema;
+		this.schemaUser = a.schemaUser;
+		this.charSet = a.fileCharset;
+		this.actionType = a.actionType.name().toLowerCase();
+		if(a.actionType == ACTION_TYPE.OBJECT) {
+			this.objOrSql = a.sqlObjects;
+		}else {
+			this.objOrSql = a.sqlString;
+		}
+		this.fileDir = a.entityDir;
 	}
 
 	/**
