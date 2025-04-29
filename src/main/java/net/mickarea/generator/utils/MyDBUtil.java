@@ -151,6 +151,7 @@ public final class MyDBUtil {
 	 * @return 转换后的对象
 	 * @throws Exception 如果执行异常，直接抛出错误。
 	 */
+	@SuppressWarnings("deprecation")
 	private static final Object translateDictInfoType(ResultSet rs, int colIndex) throws Exception {
 		
 		//获取原始的数据对象
