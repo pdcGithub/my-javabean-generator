@@ -14,7 +14,6 @@ import java.lang.reflect.Method;
 
 import net.mickarea.generator.models.CommandArguments;
 import net.mickarea.generator.models.SqlResult;
-import net.mickarea.generator.models.ValidResult;
 import net.mickarea.generator.utils.MyStrUtil;
 
 /**
@@ -103,11 +102,12 @@ public class MainController {
 			if(cArgs==null) {
 				throw new Exception("接收到的参数内容为 null 值.");
 			}
-			//参数校验
-			ValidResult validRe = cArgs.valid();
-			if(!validRe.getValid()) {
-				throw new Exception(validRe.getMessage());
-			}
+			//参数校验 （2025-04-30 这里不做校验了，因为 参数接收时，已经校验过了）
+			//ValidResult validRe = cArgs.valid();
+			//if(!validRe.getValid()) {
+			//	throw new Exception(validRe.getMessage());
+			//}
+			
 			//构造调用的类 和 函数名
 			String tmpName = MyStrUtil.makeHumpString(cArgs.getDatabaseType());
 			String className = String.format("%s.%s%s", CONTROLLER_PACKAGE_PATH, tmpName, "Controller");
