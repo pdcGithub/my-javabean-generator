@@ -40,7 +40,7 @@ import net.mickarea.generator.validators.MyGlobalValidator;
  * </p>
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年4月29日
+ * @since 2025年4月29日-2025年4月30日
  */
 public class NewApp {
 
@@ -56,10 +56,11 @@ public class NewApp {
 		//创建命令行参数识别对象
 		JCommander cmd = JCommander.newBuilder().addObject(toolArgs).build();
 		//因为如果参校验报错，则没法获取 --console 参数，所以这里自己获取
+		boolean preIsConsole = false;
 		for(int i=0;i<args.length;i++) {
 			if("--console".equalsIgnoreCase(args[i])) {
 				// 如果有这个参数，则赋值并跳出
-				toolArgs.console = true;
+				preIsConsole = true;
 				break;
 			}
 		}
@@ -68,7 +69,7 @@ public class NewApp {
 		try {
 			cmd.parse(args);
 		}catch(ParameterException e1) {
-			MyStrUtil.errorOut(e1.getMessage(), toolArgs.console);
+			MyStrUtil.errorOut(e1.getMessage(), preIsConsole);
 			return ;
 		}
 		
