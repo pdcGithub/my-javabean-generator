@@ -11,8 +11,15 @@ Copyright (c) 2024 Michael Pang.
 package net.mickarea.generator.opts;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.mickarea.generator.models.CommandArguments;
+import net.mickarea.generator.models.GenResult;
+import net.mickarea.generator.models.NewCommToolArgs;
 import net.mickarea.generator.models.SqlResult;
 import net.mickarea.generator.utils.MyStrUtil;
 
@@ -20,7 +27,7 @@ import net.mickarea.generator.utils.MyStrUtil;
  * 一个主控制器.当入口程序获取了适合的参数，则根据参数，动态调用对应的实现代码
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年6月11日-2024年9月28日
+ * @since 2024年6月11日-2024年5月9日
  */
 public class MainController {
 	
@@ -33,6 +40,11 @@ public class MainController {
 	 * 命令行传来的参数
 	 */
 	private CommandArguments cArgs = null;
+	
+	/**
+	 * 新版本的命令行参数（为了避免不必要的麻烦，直接添加就行了，别改原来的处理）
+	 */
+	private NewCommToolArgs newArgs = null;
 
 	/**
 	 * 一个主控制器.当入口程序获取了适合的参数，则根据参数，动态调用对应的实现代码
@@ -44,11 +56,21 @@ public class MainController {
 
 	/**
 	 * 一个主控制器.当入口程序获取了适合的参数，则根据参数，动态调用对应的实现代码
-	 * @param cArgs 命令行传来的参数
+	 * @param cArgs CommandArguments 命令行传来的参数
 	 */
 	public MainController(CommandArguments cArgs) {
 		super();
 		this.cArgs = cArgs;
+	}
+	
+	/**
+	 * 一个主控制器.当入口程序获取了适合的参数，则根据参数，动态调用对应的实现代码
+	 * @param newArgs NewCommToolArgs 命令行传来的参数
+	 */
+	public MainController(NewCommToolArgs newArgs) {
+		super();
+		this.newArgs = newArgs;
+		this.cArgs = new CommandArguments(newArgs);
 	}
 	
 	// getter and setter .
@@ -88,6 +110,34 @@ public class MainController {
 		String currentMethodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		//开始处理
 		this.normalExecMethod(this.cArgs, currentMethodName);
+	}
+	
+	/**
+	 * Java Action 类 和 Page 类的文件生成
+	 */
+	public void genActionAndPageClass() {
+		//生成 Action 类
+		MyFeatureActionWriter w1 = new MyFeatureActionWriter(this.newArgs);
+		//生成 Page 类
+		MyFeaturePageWriter w2 = new MyFeaturePageWriter(this.newArgs);
+		//执行生成处理
+		GenResult r1 = w1.genJavaClassFile();
+		GenResult r2 = w2.genJavaClassFile();
+		//处理结果组合成列表
+		List<GenResult> rList = new ArrayList<GenResult>();
+		rList.add(r1);
+		rList.add(r2);
+		//将数据转换为字符串
+		ObjectMapper mapper = new ObjectMapper();
+		String dataString = "[]";
+		try {
+			dataString = mapper.writeValueAsString(rList);
+			//输出
+			MyStrUtil.successOut(dataString, this.cArgs.isConsole());
+		} catch (JsonProcessingException e) {
+			//
+			MyStrUtil.errorOut("JsonProcessingException "+e.getMessage(), this.cArgs.isConsole());
+		}
 	}
 	
 	/**

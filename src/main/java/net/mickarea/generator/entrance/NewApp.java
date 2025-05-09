@@ -40,7 +40,7 @@ import net.mickarea.generator.validators.MyGlobalValidator;
  * </p>
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年4月29日-2025年4月30日
+ * @since 2025年4月29日-2025年5月9日
  */
 public class NewApp {
 
@@ -113,7 +113,7 @@ public class NewApp {
 			break;
 		case JAVA_FEATURE_GEN:
 			// Java 功能生成 模式
-			MyStrUtil.errorOut(String.format("the feature is developing.", mode), cArgs.isConsole());
+			new MainController(toolArgs).genActionAndPageClass();
 			break;
 		default:
 			// 其它情况，暂时不处理

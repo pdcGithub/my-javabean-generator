@@ -20,11 +20,13 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import net.mickarea.generator.opts.MyWriter;
+
 /**
  * &gt;&gt;&nbsp;一个字符串工具类
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月16日-2025年4月29日
+ * @since 2024年5月16日-2025年5月9日
  */
 public final class MyStrUtil {
 
@@ -387,50 +389,64 @@ public final class MyStrUtil {
 		return re;
 	}
 	
+	/**
+	 * 绘制一行内容
+	 * @param spaceNum 行首的缩进数，每4个空格为1次。即当 spaceNum 为 1，会在行首插入4个空格
+	 * @param content 行的内容
+	 * @param lineSepNum 行的结尾换行处理，数值为换行次数。
+	 * @return 一个构造好的字符串
+	 */
+	public static final String writeLine(int spaceNum, String content, int lineSepNum) {
+		StringBuffer sb = new StringBuffer();
+		//先拼接空格，每4个一次
+		for(int i=0;i<spaceNum;i++) {
+			sb.append(MyWriter.space4);
+		}
+		//拼接内容
+		sb.append(content);
+		//拼接换行符
+		for(int j=0;j<lineSepNum;j++) {
+			sb.append(MyWriter.lineSeperator);
+		}
+		//返回结果
+		return sb.toString();
+	}
+	
+	/**
+	 * 绘制一行内容 writeLine 方法的简化版，行首不缩进，结尾有1个换行符
+	 * @param content 行的内容
+	 * @return 一个构造好的字符串
+	 */
+	public static final String writeLine(String content) {
+		return writeLine(0, content, 1);
+	}
+	
+	/**
+	 * 绘制一行内容 writeLine 方法的简化版，行首自由缩进，结尾有1个换行符
+	 * @param spaceNum 行首的缩进数，每4个空格为1次。即当 spaceNum 为 1，会在行首插入4个空格
+	 * @param content 行的内容
+	 * @return 一个构造好的字符串
+	 */
+	public static final String writeLine(int spaceNum, String content) {
+		return writeLine(spaceNum, content, 1);
+	}
+	
+	/**
+	 * 绘制一行内容 writeLine 方法的简化版，行首不缩进，结尾换行符自由控制
+	 * @param content 行的内容 
+	 * @param lineSepNum 行的结尾换行处理，数值为换行次数。
+	 * @return 一个构造好的字符串
+	 */
+	public static final String writeLine(String content, int lineSepNum) {
+		return writeLine(0, content, lineSepNum);
+	}
+	
 	/*
 	public static void main(String[] args) {
-		
 		//原始字符串
-		String a1 = "ceshi，我是𠮷";
-		String a2 = "aaaaaaaa";
-		String a3 = "       				";
-		String a4 = "     \n       \t      \r       ";
-		String a5 = null;
-		String a6 = "";
-		System.out.println("value='"+parseStrToUnicode(a1)+"'");
-		System.out.println("value='"+parseStrToUnicode(a2)+"'");
-		System.out.println("value='"+parseStrToUnicode(a3)+"'");
-		System.out.println("value='"+parseStrToUnicode(a4)+"'");
-		System.out.println("value='"+parseStrToUnicode(a5)+"'");
-		System.out.println("value='"+parseStrToUnicode(a6)+"'");
-		
-		//unicode
-		String u1 = "";
-		String u2 = null;
-		String u3 = "   ";
-		String u4 = "		   \t   \r   \n";
-		String u5 = "\\u0063\\u0065\\u0073\\u0068\\u0069\\uFF0C\\u6211\\u662F\\uD842\\uDFB7";
-		String u6 = "\\u20BB7";
-		String u7 = "\\u3";
-		String u8 = "\\u63";
-		String u9 = "\\u165";
-		String u10 = "\\u662F";
-		String u11 = "\\u1D306";
-		String u12 = "\\uSSSS";
-		String u13 = "\\uSSSSSSS";
-		System.out.println("unicode1='"+parseUnicodeToStr(u1)+"'");
-		System.out.println("unicode2='"+parseUnicodeToStr(u2)+"'");
-		System.out.println("unicode3='"+parseUnicodeToStr(u3)+"'");
-		System.out.println("unicode4='"+parseUnicodeToStr(u4)+"'");
-		System.out.println("unicode5='"+parseUnicodeToStr(u5)+"'");
-		System.out.println("unicode6='"+parseUnicodeToStr(u6)+"'");
-		System.out.println("unicode7='"+parseUnicodeToStr(u7)+"'");
-		System.out.println("unicode8='"+parseUnicodeToStr(u8)+"'");
-		System.out.println("unicode9='"+parseUnicodeToStr(u9)+"'");
-		System.out.println("unicode10='"+parseUnicodeToStr(u10)+"'");
-		System.out.println("unicode11='"+parseUnicodeToStr(u11)+"'");
-		System.out.println("unicode12='"+parseUnicodeToStr(u12)+"'");
-		System.out.println("unicode13='"+parseUnicodeToStr(u13)+"'");
+		System.out.println("===");
+		System.out.print(writeLine(3, "xxx", 2));
+		System.out.println("===");
 	}
 	*/
 }

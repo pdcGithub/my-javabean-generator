@@ -188,7 +188,7 @@ java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m java
 
 ## 6. generate java action classes
 
-This feature is still under development and is not available yet.
+This feature is ok now. But it is only for my own use. (from Fri May 9 15:18:53 2025 UTC+8)
 
 ```Bash
 java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m java_feature_gen -acn MyTester01 -fc utf-8 -d "C:\\Users\\Michael\\Desktop"
