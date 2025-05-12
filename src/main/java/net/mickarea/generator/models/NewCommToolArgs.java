@@ -10,11 +10,15 @@ Copyright (c) 2022 - 2025 Michael Pang.
 *******************************************************************************************************/
 package net.mickarea.generator.models;
 
+import java.io.File;
+import java.util.List;
+
 import com.beust.jcommander.Parameter;
 
 import net.mickarea.generator.constants.MyConstants.ACTION_TYPE;
 import net.mickarea.generator.constants.MyConstants.DATABASE_TYPE;
 import net.mickarea.generator.constants.MyConstants.RUNNING_MODE;
+import net.mickarea.generator.converters.MyFileConverter;
 import net.mickarea.generator.validators.ActionTypeValidator;
 import net.mickarea.generator.validators.CharsetValidator;
 import net.mickarea.generator.validators.ConnectionTimeoutValidator;
@@ -25,12 +29,13 @@ import net.mickarea.generator.validators.RunningModelValidator;
 import net.mickarea.generator.validators.SqlObjectsValidator;
 import net.mickarea.generator.validators.StringIsNullValidator;
 import net.mickarea.generator.validators.ThreadNumValidator;
+import net.mickarea.generator.validators.WidthAndHeightValidator;
 
 /**
  * 这是一个参数接收的类。它用于处理 pdc common tool 这个 GUI 工具的输入参数
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年4月22日-2025年4月29日
+ * @since 2025年4月22日-2025年5月12日
  */
 public class NewCommToolArgs {
 
@@ -201,4 +206,31 @@ public class NewCommToolArgs {
 			validateWith = StringIsNullValidator.class,
 			description = "This is the directory where the entity is stored after it is generated.")
 	public String entityDir;
+	
+	// ===========================================  下面是 图片处理的参数 ========================= 
+	
+	@Parameter(names = {"-ifs", "--image_files"},
+			converter = MyFileConverter.class,
+			validateWith = StringIsNullValidator.class,
+			description = "This is the full path of your image files. If there are multiple files, separate them with commas.")
+	List<File> imageFiles ;
+	
+	@Parameter(names = {"-ifd", "--image_files_dir"},
+			validateWith = StringIsNullValidator.class,
+			converter = MyFileConverter.class,
+			description = "This is the original folder path where the images are stored."
+			)
+	File imageDir;
+	
+	@Parameter(names = {"-waz", "--width_after_zooming"},
+			validateWith = WidthAndHeightValidator.class,
+			description = "The width after image scaling, unit (pixels)"
+			)
+	int width = -1;
+	
+	@Parameter(names = {"-haz", "--height_after_zooming"},
+			validateWith = WidthAndHeightValidator.class,
+			description = "The height after image scaling, unit (pixels)"
+			)
+	int height = -1;
 }

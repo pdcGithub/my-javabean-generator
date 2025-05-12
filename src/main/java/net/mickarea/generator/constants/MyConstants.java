@@ -14,7 +14,7 @@ package net.mickarea.generator.constants;
  * 这是一个常量类
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年4月21日
+ * @since 2025年4月21日-2025年5月12日
  */
 public class MyConstants {
 	/**
@@ -43,7 +43,11 @@ public class MyConstants {
 		/**
 		 * 运行模式：Java 功能生成处理
 		 */
-		JAVA_FEATURE_GEN
+		JAVA_FEATURE_GEN,
+		/**
+		 * 运行模式：图片缩放处理
+		 */
+		IMAGE_SCALING
 	}
 	
 	/**
@@ -82,6 +86,18 @@ public class MyConstants {
 		 * 数据库sql语句
 		 */
 		SQL
+	}
+	
+	/**
+	 * 这是可以接受处理的图片文件类型（不是所有的图片类型都能处理）
+	 * @author Michael Pang (Dongcan Pang)
+	 * @version 1.0
+	 * @since 2025年5月12日
+	 */
+	public static enum IMAGE_TYPE {
+		JPG,
+		JPEG,
+		PNG
 	}
 	
 }
