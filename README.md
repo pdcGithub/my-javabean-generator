@@ -193,3 +193,19 @@ This feature is ok now. But it is only for my own use. (from Fri May 9 15:18:53 
 ```Bash
 java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m java_feature_gen -acn MyTester01 -fc utf-8 -d "C:\\Users\\Michael\\Desktop"
 ```
+
+## 7. images scaling
+
+This feature allows you to scale the image according to your needs. Currently supports 3 types of image formats: png, jpg, jpeg.
+
+### 7.1 scale the specified file
+
+```Bash
+java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m image_scaling -ifs "C:\\Users\\Michael\\Pictures\\testimgs\\DSC00016.JPG, C:\\Users\\Michael\\Pictures\\testimgs\\DSC00019.JPG " -d "C:\\Users\\Michael\\Pictures\\testimgs\\output"  -waz 1600 -haz 901
+```
+
+### 7.2 scale all images in the specified folder (non-recursive search)
+
+```Bash
+java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m image_scaling -ifd "C:\\Users\\Michael\\Pictures\\testimgs" -d "C:\\Users\\Michael\\Pictures\\testimgs\\output"  -waz 1600 -haz 901
+```
