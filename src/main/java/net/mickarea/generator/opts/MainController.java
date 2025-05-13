@@ -10,9 +10,12 @@ Copyright (c) 2024 Michael Pang.
 *******************************************************************************************************/
 package net.mickarea.generator.opts;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,13 +24,15 @@ import net.mickarea.generator.models.CommandArguments;
 import net.mickarea.generator.models.GenResult;
 import net.mickarea.generator.models.NewCommToolArgs;
 import net.mickarea.generator.models.SqlResult;
+import net.mickarea.generator.utils.MyFileUtil;
+import net.mickarea.generator.utils.MyImageUtil;
 import net.mickarea.generator.utils.MyStrUtil;
 
 /**
  * 一个主控制器.当入口程序获取了适合的参数，则根据参数，动态调用对应的实现代码
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年6月11日-2024年5月9日
+ * @since 2024年6月11日-2024年5月13日
  */
 public class MainController {
 	
@@ -137,6 +142,71 @@ public class MainController {
 		} catch (JsonProcessingException e) {
 			//
 			MyStrUtil.errorOut("JsonProcessingException "+e.getMessage(), this.cArgs.isConsole());
+		}
+	}
+	
+	/**
+	 * 图片缩放处理（这里有2种不同的方式，一种是指定一堆图片文件；一种是指定一个文件夹，将它里面的图片全部转换）。
+	 * 因为两种模式是互斥的，所以 当两个参数都指定，则只处理 指定的文件列表
+	 * 当然，这里的文件夹参数，不进行递归处理。递归太容易出问题了。只扫描第一层子目录。
+	 */
+	public void scaleImages() {
+		
+		// 先判断当前是什么模式，用 列表 还是 用文件夹
+		String imageMode = "dir";
+		if(newArgs.imageFiles!=null && newArgs.imageFiles.size()>0) {
+			imageMode = "files";
+		}
+		
+		// 前面已经校验了，文件夹 和 文件 都是存在的。但是还是要做一些过滤。
+		// 比如，如果是文件夹模式，它下面可能没有符合要求的文件，或者部分不符合，还是要过滤一次。
+		// 另外，提供的文件列表可能会有重复的路径。因此，不能直接用参数提供的列表
+		
+		//定义一个处理list
+		List<File> targets = null;
+		
+		// 按模式获取可用的图片列表
+		switch(imageMode) {
+		case "dir":
+			//首先搜索子文件（如果没有子文件，返回一个长度为0的数组）
+			File[] childrenFilesArray = newArgs.imageDir.listFiles();
+			//转换为列表，方便用流处理
+			List<File> childrenFiles = Arrays.asList(childrenFilesArray);
+			//过滤重复 和 不需要的 文件
+			targets = childrenFiles.stream().filter(MyFileUtil::isImageExtensionOk).distinct().collect(Collectors.toList());
+			break;
+		case "files":
+			targets = newArgs.imageFiles.stream().filter(MyFileUtil::isImageExtensionOk).distinct().collect(Collectors.toList());
+			break;
+		default:
+			targets = new ArrayList<File>();
+			break;
+		}
+		
+		//开始转换处理
+		if(targets.size()>0) {
+			//循环遍历，因为会出现报错的可能，还是用 for 循环靠谱
+			List<String> errorFileList = new ArrayList<String>();
+			for(File img: targets) {
+				String oriPath = img.getAbsolutePath();
+				String newPath = newArgs.entityDir + File.separator + img.getName();
+				try {
+					MyImageUtil.getScaledImage(oriPath, newPath, newArgs.imageWidth, newArgs.imageHeight);
+				} catch (Exception e) {
+					//增加日志输出
+					MyStrUtil.mylogger.error(e.getMessage(), e);
+					errorFileList.add(newPath);
+				}
+			}
+			//输出汇总信息
+			if(errorFileList.size()>0) {
+				MyStrUtil.errorOut("error:"+errorFileList.toString(), this.cArgs.isConsole());
+			}else {
+				MyStrUtil.successOut("All images scaled successfully", this.cArgs.isConsole());
+			}
+		}else {
+			// 没有可以缩放的文件
+			MyStrUtil.errorOut("No one image is available for image zooming.", this.cArgs.isConsole());
 		}
 	}
 	

@@ -12,8 +12,10 @@ package net.mickarea.generator.validators;
 
 import java.io.File;
 
+import net.mickarea.generator.constants.MyConstants.IMAGE_TYPE;
 import net.mickarea.generator.constants.MyConstants.RUNNING_MODE;
 import net.mickarea.generator.models.NewCommToolArgs;
+import net.mickarea.generator.utils.MyFileUtil;
 import net.mickarea.generator.utils.MyStrUtil;
 
 /**
@@ -21,7 +23,7 @@ import net.mickarea.generator.utils.MyStrUtil;
  * 对于单个的参数校验，交给 JCommander 的 Validator 类就行了。因为 旧版的 JCommander 没有关联校验参数。所以要自己写关联校验
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年4月24日-2025年4月25日
+ * @since 2025年4月24日-2025年5月13日
  */
 public class MyGlobalValidator {
 
@@ -67,9 +69,12 @@ public class MyGlobalValidator {
 			// Java 功能生成 模式
 			re = this.javaFeatureGenValid();
 			break;
+		case IMAGE_SCALING:
+			re = this.imageScalingValid();
+			break;
 		default:
 			// 其它情况，暂时不处理
-			re = String.format("the mode [%s] is not supported.", mode);
+			re = String.format("global validator error, the mode [%s] is not supported.", mode);
 			break;
 		}
 		return re;
@@ -255,6 +260,88 @@ public class MyGlobalValidator {
 		File dir = new File(this.myArgs.entityDir);
 		if(!dir.exists() || !dir.isDirectory()) {
 			re = "the path of entity direcotry is not exists or is not a direcotry.";
+			return re;
+		}
+		
+		return re;
+	}
+	
+	/**
+	 * <p>这里是 图片缩放 功能的参数校验</p>
+	 * <p>关于 图片缩放功能 有 5 个参数是必须校验的：图片文件列表，图片文件夹，图片生成后的路径，图片生成后的宽度、高度。</p>
+	 * <p>其中，图片文件列表，图片文件夹 是互斥的。文件列表 和 文件夹 只需要提供一个。因为处理模式有2种，按列表或者按文件夹。
+	 * 如果2个都提供，则按文件列表处理</p>
+	 * @return 校验通过，返回空；校验失败，返回一段提示信息。
+	 */
+	private String imageScalingValid() {
+		// 调用参数举例 1 ：
+		// -m image_scaling -ifd "C:\\Users\\Michael\\Pictures\\testimgs" -d "C:\\Users\\Michael\\Pictures\\testimgs\\output"  -waz 1600 -haz 901
+		// 调用参数举例 2 ：
+		// -m image_scaling -ifs "C:\\Users\\Michael\\Pictures\\testimgs\\DSC00016.JPG, C:\\Users\\Michael\\Pictures\\testimgs\\DSC00019.JPG, " -d "C:\\Users\\Michael\\Pictures\\testimgs\\output"  -waz 1600 -haz 901
+		String re = "";
+		
+		// 先判断当前是什么模式，用 列表 还是 用文件夹
+		String imageMode = "dir";
+		if(myArgs.imageFiles!=null && myArgs.imageFiles.size()>0) {
+			imageMode = "files";
+		}
+		
+		//按照模式校验参数
+		switch(imageMode) {
+		case "dir":
+			//对于文件夹，要判断 是否存在 并且 是否为文件夹
+			if(myArgs.imageDir==null || !myArgs.imageDir.exists() || !myArgs.imageDir.isDirectory()) {
+				re = String.format("The path=[%s] of images is abnormal. It may not exist or not a folder.", myArgs.imageDir);
+			}else if(!myArgs.imageDir.canRead()) {
+				re = String.format("The path=[%s] can not read.", myArgs.imageDir);
+			}
+			break;
+		case "files":
+			//对于文件列表，需要判断文件是否有效。因为只处理几种图片文件
+			if(myArgs.imageFiles==null || myArgs.imageFiles.size()<=0) {
+				re = "The path of image files is empty, please check it.";
+			}else {
+				//这里校验是否文件是否存在，并且是否为图片
+				for(File f: myArgs.imageFiles) {
+					if(!f.exists() || !f.isFile()) {
+						re = String.format("The file=[%s] is not exist or not an image file.", f.getAbsolutePath());
+						break;
+					}else if(!MyFileUtil.isImageExtensionOk(f)) {
+						re = String.format(
+								"File type=[%s] is incorrect, the file type can only be one of the following types (%s).", 
+								MyFileUtil.getFileExtension(f),
+								MyStrUtil.showArrayValues(IMAGE_TYPE.values()));
+						break;
+					}
+				}
+			}
+			break;
+		default:
+			re = String.format("The image processing mode=[%s] is abnormal, please check it.", imageMode);
+			break;
+		}
+		
+		// 上阶段的校验结果
+		if(!MyStrUtil.isEmptyString(re)) {
+			return re;
+		}
+		
+		// 校验剩下的东西，比如 宽度，高度
+		if(myArgs.imageWidth<=0 || myArgs.imageHeight<=0) {
+			re = String.format("The parameter scaled width or height is abnormal. Please check them. width=[%s], height=[%s]", 
+					myArgs.imageWidth, 
+					myArgs.imageHeight);
+			return re;
+		}
+		
+		//存放路径校验
+		File dir = MyStrUtil.isEmptyString(this.myArgs.entityDir)?null:new File(this.myArgs.entityDir);
+		if(dir==null || !dir.exists() || !dir.isDirectory()) {
+			re = String.format("The path=[%s] for storing the generated images is abnormal. It may not exists or not a direcotry.",
+					dir.getAbsolutePath());
+			return re;
+		}else if(!dir.canWrite()){
+			re = String.format("you have not right to write this folder=[%s].", dir.getAbsolutePath());
 			return re;
 		}
 		

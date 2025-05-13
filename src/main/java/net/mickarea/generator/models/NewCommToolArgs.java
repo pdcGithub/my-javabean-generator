@@ -19,6 +19,7 @@ import net.mickarea.generator.constants.MyConstants.ACTION_TYPE;
 import net.mickarea.generator.constants.MyConstants.DATABASE_TYPE;
 import net.mickarea.generator.constants.MyConstants.RUNNING_MODE;
 import net.mickarea.generator.converters.MyFileConverter;
+import net.mickarea.generator.converters.MyFileListConverter;
 import net.mickarea.generator.validators.ActionTypeValidator;
 import net.mickarea.generator.validators.CharsetValidator;
 import net.mickarea.generator.validators.ConnectionTimeoutValidator;
@@ -35,7 +36,7 @@ import net.mickarea.generator.validators.WidthAndHeightValidator;
  * 这是一个参数接收的类。它用于处理 pdc common tool 这个 GUI 工具的输入参数
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年4月22日-2025年5月12日
+ * @since 2025年4月22日-2025年5月13日
  */
 public class NewCommToolArgs {
 
@@ -209,28 +210,39 @@ public class NewCommToolArgs {
 	
 	// ===========================================  下面是 图片处理的参数 ========================= 
 	
+	/**
+	 * 要处理的图片文件列表（这是对文件路径进行 List 转换）
+	 */
 	@Parameter(names = {"-ifs", "--image_files"},
-			converter = MyFileConverter.class,
-			validateWith = StringIsNullValidator.class,
+			listConverter = MyFileListConverter.class,
 			description = "This is the full path of your image files. If there are multiple files, separate them with commas.")
-	List<File> imageFiles ;
+	public List<File> imageFiles ;
 	
+	/**
+	 * 要处理的图片所在文件夹。这个参数与 imageFiles 互斥。当错误地同时使用 imageFiles 和 imageDir 参数，默认只识别 imageFiles 参数。
+	 * （这是对文件路径进行 File 对象转换）
+	 */
 	@Parameter(names = {"-ifd", "--image_files_dir"},
-			validateWith = StringIsNullValidator.class,
 			converter = MyFileConverter.class,
 			description = "This is the original folder path where the images are stored."
 			)
-	File imageDir;
+	public File imageDir;
 	
+	/**
+	 * 图片缩放处理后的宽度，单位 px
+	 */
 	@Parameter(names = {"-waz", "--width_after_zooming"},
 			validateWith = WidthAndHeightValidator.class,
 			description = "The width after image scaling, unit (pixels)"
 			)
-	int width = -1;
+	public int imageWidth = -1;
 	
+	/**
+	 * 图片缩放处理后的高度，单位 px
+	 */
 	@Parameter(names = {"-haz", "--height_after_zooming"},
 			validateWith = WidthAndHeightValidator.class,
 			description = "The height after image scaling, unit (pixels)"
 			)
-	int height = -1;
+	public int imageHeight = -1;
 }

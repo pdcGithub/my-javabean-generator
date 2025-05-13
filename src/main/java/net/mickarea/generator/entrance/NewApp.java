@@ -40,7 +40,7 @@ import net.mickarea.generator.validators.MyGlobalValidator;
  * </p>
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年4月29日-2025年5月9日
+ * @since 2025年4月29日-2025年5月13日
  */
 public class NewApp {
 
@@ -114,6 +114,10 @@ public class NewApp {
 		case JAVA_FEATURE_GEN:
 			// Java 功能生成 模式
 			new MainController(toolArgs).genActionAndPageClass();
+			break;
+		case IMAGE_SCALING:
+			// 图片缩放处理 模式
+			new MainController(toolArgs).scaleImages();
 			break;
 		default:
 			// 其它情况，暂时不处理
