@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import net.mickarea.generator.beans.TabOrViewTmpObj;
+import net.mickarea.generator.constants.MyConstants.IMAGE_TYPE;
 import net.mickarea.generator.models.GenResult;
 import net.mickarea.generator.models.ValidResult;
 import net.mickarea.generator.opts.MyWriter;
@@ -26,7 +27,7 @@ import net.mickarea.generator.opts.MyWriter;
  * &gt;&gt;&nbsp;文件读写操作工具类（默认的文件读写字符集为 UTF-8）
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月16日-2024年6月20日
+ * @since 2024年5月16日-2025年5月13日
  */
 public final class MyFileUtil {
 	
@@ -218,6 +219,77 @@ public final class MyFileUtil {
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * 获取文件路径字符串中的文件名后缀
+	 * @param filename 文件路径字符串
+	 * @return 如果找到后缀，则返回，否则，返回空字符串。这里取的是后缀，不带 点号 ，字符串默认为小写。
+	 */
+	public static final String getFileExtension(String filename) {
+		String re = "";
+		//如果字符串不为空，则处理
+		if(!MyStrUtil.isEmptyString(filename)) {
+			//找出最后一个点
+			int lastIndex = filename.lastIndexOf(".");
+			//有一种情况，就是 点是有的，但是没有后缀 。 Orz 。
+			if(lastIndex>=0 && lastIndex<filename.length()-1) {
+				// 这里取的是后缀，不带 点号 。
+				re = filename.substring(lastIndex+1).toLowerCase();
+			}
+		}
+		return re;
+	}
+	
+	/**
+	 * 获取文件对象中的文件名后缀
+	 * @param f 文件对象
+	 * @return 如果找到后缀，则返回，否则，返回空字符串。
+	 */
+	public static final String getFileExtension(File f) {
+		String re = "";
+		if(f!=null && f.exists() && f.isFile()) {
+			re = getFileExtension(f.getName());
+		}
+		return re;
+	}
+	
+	/**
+	 * 判断文件路径所对应的文件类型，是否为符合要求的图片类型。
+	 * @param filepath 文件路径
+	 * @return 如果符合返回 true，否则返回 false
+	 */
+	public static final boolean isImageExtensionOk(String filepath) {
+		boolean re = false;
+		//先获取后缀，返回的结果可能为空字符串
+		String extension = getFileExtension(filepath);
+		//不为空，则开始判断类型是否可用
+		if(!MyStrUtil.isEmptyString(extension)) {
+			//看后缀是否符合要求
+			try {
+				IMAGE_TYPE.valueOf(extension.toUpperCase());
+				re = true;
+			}catch(Exception e) {
+			}
+		}
+		//
+		return re;
+	}
+	
+	/**
+	 * 判断文件对象的文件类型，是否为符合要求的图片类型。
+	 * @param imageFile 文件对象
+	 * @return 如果符合返回 true，否则返回 false
+	 */
+	public static final boolean isImageExtensionOk(File imageFile) {
+		boolean re = false;
+		//首先要判断文件对象是否可用
+		if(imageFile!=null && imageFile.exists() && imageFile.isFile()) {
+			//然后根据文件路径判断
+			re = isImageExtensionOk(imageFile.getName());
+		}
+		//
+		return re;
 	}
 	
 }

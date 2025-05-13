@@ -26,7 +26,7 @@ import net.mickarea.generator.opts.MyWriter;
  * &gt;&gt;&nbsp;一个字符串工具类
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月16日-2025年5月9日
+ * @since 2024年5月16日-2025年5月13日
  */
 public final class MyStrUtil {
 
@@ -439,6 +439,24 @@ public final class MyStrUtil {
 	 */
 	public static final String writeLine(String content, int lineSepNum) {
 		return writeLine(0, content, lineSepNum);
+	}
+	
+	/**
+	 * 打印一个对象数组的值，以逗号分割
+	 * @param objs 对象数组
+	 * @return 一个以逗号分隔的对象信息
+	 */
+	public static final String showArrayValues(Object[] objs) {
+		StringBuffer re = new StringBuffer();
+		if(objs!=null && objs.length>0) {
+			for(int i=0;i<objs.length;i++) {
+				re.append(objs[i].toString());
+				if(i<objs.length-1) {
+					re.append(" , ");
+				}
+			}
+		}
+		return re.toString();
 	}
 	
 	/*
