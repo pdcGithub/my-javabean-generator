@@ -36,7 +36,7 @@ import net.mickarea.generator.validators.WidthAndHeightValidator;
  * 这是一个参数接收的类。它用于处理 pdc common tool 这个 GUI 工具的输入参数
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年4月22日-2025年5月13日
+ * @since 2025年4月22日-2025年5月14日
  */
 public class NewCommToolArgs {
 
@@ -205,7 +205,7 @@ public class NewCommToolArgs {
 	 */
 	@Parameter(names = {"-d", "--dir"},
 			validateWith = StringIsNullValidator.class,
-			description = "This is the directory where the entity is stored after it is generated.")
+			description = "This is the directory where the entity is stored after it is generated. This parameter can also be used to specify the output folder for scaled images. Please ensure that the folder has write permissions.")
 	public String entityDir;
 	
 	// ===========================================  下面是 图片处理的参数 ========================= 
@@ -224,7 +224,7 @@ public class NewCommToolArgs {
 	 */
 	@Parameter(names = {"-ifd", "--image_files_dir"},
 			converter = MyFileConverter.class,
-			description = "This is the original folder path where the images are stored."
+			description = "This is the original folder path where the images are stored. This parameter is mutually exclusive with '-ifs'. When both appear, only the '-ifs' parameter is processed."
 			)
 	public File imageDir;
 	
@@ -233,7 +233,7 @@ public class NewCommToolArgs {
 	 */
 	@Parameter(names = {"-waz", "--width_after_zooming"},
 			validateWith = WidthAndHeightValidator.class,
-			description = "The width after image scaling, unit (pixels)"
+			description = "The max width after image scaling, unit (pixels). The image is scaled proportionally."
 			)
 	public int imageWidth = -1;
 	
@@ -242,7 +242,7 @@ public class NewCommToolArgs {
 	 */
 	@Parameter(names = {"-haz", "--height_after_zooming"},
 			validateWith = WidthAndHeightValidator.class,
-			description = "The height after image scaling, unit (pixels)"
+			description = "The max height after image scaling, unit (pixels). The image is scaled proportionally."
 			)
 	public int imageHeight = -1;
 }

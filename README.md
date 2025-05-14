@@ -8,7 +8,7 @@ Here's some information about my development environment:
 
     LANGUAGE : Java 8.
     MAVEN : Apache Maven 3.8.5
-    IDE : Eclipse Java EE IDE for Web Developers. Version : 2018-09 (4.9.0) Build id : 20180917-1800
+    IDE : Eclipse IDE for Enterprise Java and Web Developers (includes Incubating components) Version: 2023-12 (4.30.0) Build id: 20231201-2043
     OS : Windows 11 x64.
 
 # Packaging
@@ -49,7 +49,7 @@ Usage: <main class> [options]
       The threshold of database connection. In milliseconds.
       Default: 5000
     --console
-      If you are running on console by yourself, please add this parameter.
+      If you are running on console by yourself, please add this parameter. 
       The output informations will be shorter.
       Default: false
     -dun, --db_user_name
@@ -60,16 +60,29 @@ Usage: <main class> [options]
       Your database type. for example: mysql, oracle, sqlserver.
       Possible Values: [MYSQL, ORACLE, SQLSERVER]
     -d, --dir
-      This is the directory where the entity is stored after it is generated.
+      This is the directory where the entity is stored after it is generated. 
+      This parameter can also be used to specify the output folder for scaled 
+      images. Please ensure that the folder has write permissions.
     -fc, --file_charset
       The character set used when the file is saved.
+    -haz, --height_after_zooming
+      The max height after image scaling, unit (pixels). The image is scaled 
+      proportionally. 
+      Default: -1
     -h, --help
       Show help informations.
+    -ifs, --image_files
+      This is the full path of your image files. If there are multiple files, 
+      separate them with commas.
+    -ifd, --image_files_dir
+      This is the original folder path where the images are stored. This 
+      parameter is mutually exclusive with '-ifs'. When both appear, only the 
+      '-ifs' parameter is processed.
     -jdn, --jdbc_driver_name
       The JDBC driver class name. For example: 'com.mysql.cj.jdbc.Driver'.
     -ju, --jdbc_url
-      The JDBC connection URL. For example:
-      'jdbc:mysql://127.0.0.1:3306/myspace_db'
+      The JDBC connection URL. For example: 
+      'jdbc:mysql://127.0.0.1:3306/myspace_db' 
     -max, --max_thread
       The maximum number of connections in the connection pool.
       Default: 40
@@ -78,7 +91,7 @@ Usage: <main class> [options]
       Default: 10
   * -m, --mode
       Running mode of the generator.
-      Possible Values: [JAR_TEST, DB_CONN_TEST, DB_OBJ_SELECT, JAVA_BEAN_GEN, JAVA_FEATURE_GEN]
+      Possible Values: [JAR_TEST, DB_CONN_TEST, DB_OBJ_SELECT, JAVA_BEAN_GEN, JAVA_FEATURE_GEN, IMAGE_SCALING]
     -n, --name
       The name of configuration.
       Default: defaultName
@@ -90,6 +103,10 @@ Usage: <main class> [options]
       The name of the database object to be generated.
     -st, --sql_string
       The database SQL statement to be generated.
+    -waz, --width_after_zooming
+      The max width after image scaling, unit (pixels). The image is scaled 
+      proportionally. 
+      Default: -1
 ```
 
 ## 2. test jar
@@ -144,6 +161,10 @@ java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m db_o
 
 ## 5. generate java beans
 
+Before processing, please ensure that your output folder has write permissions. 
+
+Do not set the output folder to a non-writable path, such as the root directory of the C drive on a Windows system (C:\\\\).
+
 ### 5.1 MySql 8+
 
 #### 5.1.1 objects
@@ -190,6 +211,10 @@ java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m java
 
 This feature is ok now. But it is only for my own use. (from Fri May 9 15:18:53 2025 UTC+8)
 
+Before processing, please ensure that your output folder has write permissions. 
+
+Do not set the output folder to a non-writable path, such as the root directory of the C drive on a Windows system (C:\\\\).
+
 ```Bash
 java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m java_feature_gen -acn MyTester01 -fc utf-8 -d "C:\\Users\\Michael\\Desktop"
 ```
@@ -197,6 +222,10 @@ java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m java
 ## 7. images scaling
 
 This feature allows you to scale the image according to your needs. Currently supports 3 types of image formats: png, jpg, jpeg.
+
+Before processing, please ensure that your output folder has write permissions. 
+
+Do not set the output folder to a non-writable path, such as the root directory of the C drive on a Windows system (C:\\\\).
 
 ### 7.1 scale the specified file
 

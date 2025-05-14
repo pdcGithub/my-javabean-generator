@@ -23,7 +23,7 @@ import net.mickarea.generator.utils.MyStrUtil;
  * 对于单个的参数校验，交给 JCommander 的 Validator 类就行了。因为 旧版的 JCommander 没有关联校验参数。所以要自己写关联校验
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年4月24日-2025年5月13日
+ * @since 2025年4月24日-2025年5月14日
  */
 public class MyGlobalValidator {
 
@@ -343,6 +343,29 @@ public class MyGlobalValidator {
 		}else if(!dir.canWrite()){
 			re = String.format("you have not right to write this folder=[%s].", dir.getAbsolutePath());
 			return re;
+		}
+		
+		//路径校验（避免 源文件夹 和 目标文件夹 相同，导致读写冲突，文件被覆盖）2025-05-14
+		if(imageMode.equalsIgnoreCase("dir") && dir.equals(myArgs.imageDir)) {
+			// 如果 图片所在文件夹 与 输出文件夹 路径一致，则报错
+			re = String.format("The source folder and output folder is the same one [%s], please check them.", dir.getAbsolutePath());
+			return re;
+		}else if(imageMode.equalsIgnoreCase("files")) {
+			// 文件列表要一个个遍历校验
+			String fileFullPath = "";
+			for(File f: myArgs.imageFiles) {
+				//如果文件所在文件夹，跟输出文件夹一致，则提示
+				if(dir.equals(f.getParentFile())) {
+					fileFullPath = f.getAbsolutePath();
+					break;
+				}
+			}
+			if(!MyStrUtil.isEmptyString(fileFullPath)) {
+				re = String.format("The original image [%s] and the output image have the same parent folder [%s], please check.", 
+						fileFullPath,
+						dir);
+				return re;
+			}
 		}
 		
 		return re;
