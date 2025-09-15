@@ -6,22 +6,34 @@
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
             <!-- 设置日志内容编码 -->
             <charset>UTF-8</charset>
         </encoder>
     </appender>
     
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>logs/jar-run.log</file>
+    <!-- 这里修改为 滚动日志处理器，可按日期分开记录 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- 文件名的规则字符串 -->
+			<fileNamePattern>logs/jar-run.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<!-- 保留 10 天，总大小不超过 3GB -->
+			<maxHistory>10</maxHistory>
+			<totalSizeCap>3GB</totalSizeCap>
+		</rollingPolicy>
+        
         <encoder>
-            <pattern>%d [%thread] %-5level %logger{36} [%file : %line] - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%file : %line] - %msg%n</pattern>
             <!-- 设置日志内容编码 -->
             <charset>UTF-8</charset>
         </encoder>
+        
     </appender>
     
-    <root level="ERROR">
+    <!-- TRACE | DEBUG | INFO | WARN | ERROR | ALL | OFF -->
+    <root level="INFO">
+        <!-- 如果是开发时，这里可以打开。因为不打开的话，终端是看不到输出信息的 -->
         <!-- <appender-ref ref="STDOUT" /> -->
         <appender-ref ref="FILE" />
     </root>
