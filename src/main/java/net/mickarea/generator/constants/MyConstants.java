@@ -14,7 +14,7 @@ package net.mickarea.generator.constants;
  * 这是一个常量类
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年4月21日-2025年5月12日
+ * @since 2025年4月21日-2025年9月15日
  */
 public class MyConstants {
 	/**
@@ -47,7 +47,15 @@ public class MyConstants {
 		/**
 		 * 运行模式：图片缩放处理
 		 */
-		IMAGE_SCALING
+		IMAGE_SCALING,
+		/**
+		 * 运行模式：数字签名
+		 */
+		DIGITAL_SIGNATURE,
+		/**
+		 * 运行模式：非对称加密
+		 */
+		ASYMMETRIC_ENCRYPTION
 	}
 	
 	/**
@@ -98,6 +106,31 @@ public class MyConstants {
 		JPG,
 		JPEG,
 		PNG
+	}
+	
+	/**
+	 * 这是数字签名算法的名称，目前只支持这些算法
+	 * @author Michael Pang (Dongcan Pang)
+	 * @version 1.0
+	 * @since 2025年9月15日
+	 */
+	public static enum DIGITAL_SIGNATURE_ALGORITHM {
+		MD5,
+		SHA_1,
+		SHA_224,
+		SHA_256,
+		SHA_384,
+		SHA_512
+	}
+	
+	/**
+	 * 这是非对称加密算法的名称，目前只支持这些算法
+	 * @author Michael Pang (Dongcan Pang)
+	 * @version 1.0
+	 * @since 2025年9月15日
+	 */
+	public static enum ASYMMETRIC_ENCRYPTION_ALGORITHM {
+		RSA
 	}
 	
 }

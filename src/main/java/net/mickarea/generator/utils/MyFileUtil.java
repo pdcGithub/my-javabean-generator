@@ -11,9 +11,12 @@ Copyright (c) 2023 Michael Pang.
 package net.mickarea.generator.utils;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -27,7 +30,7 @@ import net.mickarea.generator.opts.MyWriter;
  * &gt;&gt;&nbsp;文件读写操作工具类（默认的文件读写字符集为 UTF-8）
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月16日-2025年5月13日
+ * @since 2024年5月16日-2025年9月15日
  */
 public final class MyFileUtil {
 	
@@ -289,6 +292,87 @@ public final class MyFileUtil {
 			re = isImageExtensionOk(imageFile.getName());
 		}
 		//
+		return re;
+	}
+	
+	/**
+	 * 将给定地址的文件，以字节数组的方式返回。（这里不抛异常，只返回 null 作为异常标识，异常信息会记录到日志文件）
+	 * @param filePath 文件地址
+	 * @return 字节数组形式的文件对象。如果文件异常（比如：文件不存在、无法读取、流处理报错等），则返回 null
+	 */
+	public static final byte[] loadByteArrayFromFile(String filePath) {
+		//
+		byte[] re = null;
+		//
+		if(filePath==null) {
+			MyStrUtil.mylogger.error("读取文件异常，文件路径为 null：");
+			return re;
+		}
+		//创建文件对象，判断文件是否存在
+		File targetFile = new File(filePath);
+		if(!targetFile.exists()) {
+			MyStrUtil.mylogger.error(String.format("读取文件异常，文件[%s]不存在：", filePath));
+			return re;
+		}
+		//判断文件是否可读
+		if(!targetFile.canRead()) {
+			MyStrUtil.mylogger.error(String.format("读取文件异常，文件[%s]无法读取：", filePath));
+			return re;
+		}
+		// 开始处理
+		FileInputStream fis = null;
+		ByteArrayOutputStream baos = null;
+		try {
+			//将文件识别为 文件流
+			fis = new FileInputStream(filePath);
+			//初始化 输出用的字节流
+			baos = new ByteArrayOutputStream();
+			//设置缓冲区
+			int buffSize = 1024*8;
+			int len = 0;
+			byte[] buffer = new byte[buffSize];
+			//开始读写
+			while((len=fis.read(buffer))!=-1) {
+				baos.write(buffer, 0 , len);
+			}
+			//结果转化
+			re = baos.toByteArray();
+		} catch (Exception e) {
+			// 记录异常
+			MyStrUtil.mylogger.error(String.format("读取文件[%s]为 ByteBuffer 时发生异常。", filePath), e);
+		} finally {
+			if(baos!=null) {
+				try {baos.close(); } catch (Exception e1) { }
+				baos=null;
+			}
+			if(fis!=null) {
+				try {fis.close(); } catch (Exception e2) { }
+				fis=null;
+			}
+		}
+		
+		//
+		return re;
+	}
+	
+	/**
+	 * 将给定地址的文件，以 ByteBuffer 的方式返回。（这里不抛异常，只返回 null 作为异常标识，异常信息会记录到日志文件）
+	 * @param filePath 文件地址
+	 * @return ByteBuffer 对象。如果文件异常（比如：文件不存在、无法读取、流处理报错等），则返回 null
+	 */
+	public static final ByteBuffer loadByteBufferFromFile(String filePath) {
+		ByteBuffer re = null;
+		byte[] byteArray = loadByteArrayFromFile(filePath);
+		if(byteArray!=null) {
+			//初始化一个同样大小的缓冲区
+			ByteBuffer buffer = ByteBuffer.allocate(byteArray.length);
+			// 放入缓冲区
+			buffer.put(byteArray);
+			// 充值缓冲区
+			buffer.flip();
+			//
+			re = buffer;
+		}
 		return re;
 	}
 	
