@@ -14,7 +14,7 @@ package net.mickarea.generator.constants;
  * 这是一个常量类
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年4月21日-2025年9月15日
+ * @since 2025年4月21日-2025年9月16日
  */
 public class MyConstants {
 	/**
@@ -131,6 +131,28 @@ public class MyConstants {
 	 */
 	public static enum ASYMMETRIC_ENCRYPTION_ALGORITHM {
 		RSA
+	}
+	
+	/**
+	 * 这是关于数字签名和字符串加密时，输入信息的类型
+	 * @author Michael Pang (Dongcan Pang)
+	 * @version 1.0
+	 * @since 2025年9月16日
+	 */
+	public static enum INPUT_CONTENT_TYPE {
+		FILE,
+		TEXT
+	}
+	
+	/**
+	 * 操作类型：加密/解密
+	 * @author Michael Pang (Dongcan Pang)
+	 * @version 1.0
+	 * @since 2025年9月16日
+	 */
+	public static enum EN_DE_TYPE {
+		ENCRYPT, 
+		DECRYPT
 	}
 	
 }

@@ -17,15 +17,21 @@ import com.beust.jcommander.Parameter;
 
 import net.mickarea.generator.constants.MyConstants.ACTION_TYPE;
 import net.mickarea.generator.constants.MyConstants.DATABASE_TYPE;
+import net.mickarea.generator.constants.MyConstants.EN_DE_TYPE;
+import net.mickarea.generator.constants.MyConstants.INPUT_CONTENT_TYPE;
 import net.mickarea.generator.constants.MyConstants.RUNNING_MODE;
 import net.mickarea.generator.converters.MyFileConverter;
 import net.mickarea.generator.converters.MyFileListConverter;
 import net.mickarea.generator.validators.ActionTypeValidator;
+import net.mickarea.generator.validators.AlgorithmValidator;
 import net.mickarea.generator.validators.CharsetValidator;
 import net.mickarea.generator.validators.ConnectionTimeoutValidator;
 import net.mickarea.generator.validators.DatabaseTypeValidator;
+import net.mickarea.generator.validators.EnDeTypeValidator;
+import net.mickarea.generator.validators.InputContentTypeValidator;
 import net.mickarea.generator.validators.JDBCDriverNameValidator;
 import net.mickarea.generator.validators.JDBCUrlValidator;
+import net.mickarea.generator.validators.KeyLengthValidator;
 import net.mickarea.generator.validators.RunningModelValidator;
 import net.mickarea.generator.validators.SqlObjectsValidator;
 import net.mickarea.generator.validators.StringIsNullValidator;
@@ -36,7 +42,7 @@ import net.mickarea.generator.validators.WidthAndHeightValidator;
  * 这是一个参数接收的类。它用于处理 pdc common tool 这个 GUI 工具的输入参数
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年4月22日-2025年5月14日
+ * @since 2025年4月22日-2025年9月16日
  */
 public class NewCommToolArgs {
 
@@ -245,4 +251,77 @@ public class NewCommToolArgs {
 			description = "The max height after image scaling, unit (pixels). The image is scaled proportionally."
 			)
 	public int imageHeight = -1;
+	
+	// ===========================================  下面是 数字签名 和 字符串加密 功能的参数 ========================= 
+	
+	/**
+	 * 待处理的内容：可能是字符串，也可能是文件路径（不能为空）
+	 */
+	@Parameter(
+			names = {"-ic", "--input_content"},
+			validateWith = StringIsNullValidator.class,
+			description = "This is a string or file path to be processed."
+			)
+	public String inputContent;
+	
+	/**
+	 * 待处理内容的类型：file、text
+	 */
+	@Parameter(
+			names = {"-ict", "--input_content_type"},
+			validateWith = InputContentTypeValidator.class,
+			description = "This is the type of content that needs to be processed."
+			)
+	public INPUT_CONTENT_TYPE inputContentType;
+	
+	/**
+	 * 待处理的算法名称 MD5, SHA-1 等等
+	 */
+	@Parameter(
+			names = {"-algo", "--algorithm"},
+			validateWith = AlgorithmValidator.class,
+			description = "Algorithm name to be processed. For example: MD5, SHA_1, SHA_224, SHA_256, SHA_384, SHA_512, RSA."
+			)
+	public String algorithmName;
+	
+	/**
+	 * 加密处理时，所需要用到的密钥长度。一般是 1024 以上
+	 */
+	@Parameter(
+			names = {"-kl", "--key_length"},
+			validateWith = KeyLengthValidator.class,
+			description = "The key length required during encryption processing. The key length is generally above 1024."
+			)
+	public int keyLength;
+	
+	/**
+	 * 处理方式：ENCRYPT、DECRYPT
+	 */
+	@Parameter(
+			names = {"-ende","--encrypt_or_decrypt"},
+			validateWith = EnDeTypeValidator.class,
+			description = "How to handle it: ENCRYPT / DECRYPT."
+			)
+	public EN_DE_TYPE execType;
+	
+	/**
+	 * 加密时，用到的公钥字符串
+	 */
+	@Parameter(
+			names = {"-pubkey", "--public_key"},
+			validateWith = StringIsNullValidator.class,
+			description = "This is the public key needed when executing the encryption algorithm."
+			)
+	public String publicKey;
+	
+	/**
+	 * 解密时，用到的私钥字符串
+	 */
+	@Parameter(
+			names = {"-prikey", "--private_key"},
+			validateWith = StringIsNullValidator.class,
+			description = "This is the private key needed during the execution of the decryption algorithm."
+			)
+	public String privateKey;
+	
 }
