@@ -12,27 +12,34 @@ package net.mickarea.generator.opts;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import net.mickarea.generator.constants.MyConstants.EN_DE_TYPE;
+import net.mickarea.generator.constants.MyConstants.INPUT_CONTENT_TYPE;
 import net.mickarea.generator.models.CommandArguments;
 import net.mickarea.generator.models.GenResult;
 import net.mickarea.generator.models.NewCommToolArgs;
 import net.mickarea.generator.models.SqlResult;
 import net.mickarea.generator.utils.MyFileUtil;
 import net.mickarea.generator.utils.MyImageUtil;
+import net.mickarea.generator.utils.MyRSAUtil;
 import net.mickarea.generator.utils.MyStrUtil;
+import net.mickarea.generator.utils.MySummaryUtil;
 
 /**
  * 一个主控制器.当入口程序获取了适合的参数，则根据参数，动态调用对应的实现代码
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年6月11日-2024年5月13日
+ * @since 2024年6月11日-2025年9月18日
  */
 public class MainController {
 	
@@ -207,6 +214,123 @@ public class MainController {
 		}else {
 			// 没有可以缩放的文件
 			MyStrUtil.errorOut("No one image is available for image zooming.", this.cArgs.isConsole());
+		}
+	}
+	
+	/**
+	 * 这里执行数字签名的提取（在这之前，已经对参数进行了 独立校验 和 关联校验，可以直接使用了）
+	 * 在数字签名处理上，只是对字符串、文件进行一个简单的签名算法处理，提取数字信息特征。处理时，我们根据参数，拼接一个函数名，然后反射调用
+	 * <p>调用举例：--console -m DIGITAL_SIGNATURE -ic "aaa"          -ict "text" -algo "MD5"</p>
+	 * <p>调用举例：--console -m DIGITAL_SIGNATURE -ic "D:\\test.txt" -ict "file" -algo "MD5"</p>
+	 * <p>
+	 * 正常的输出结果可能如下
+	 * <code>{"oriMessage":"e22843e821a6285c6ba899353c15c6d0","encodeMessage":"e22843e821a6285c6ba899353c15c6d0","status":"success"}</code>
+	 * </p>
+	 * <p>
+	 * 异常的输出结果可能如下
+	 * <code>{"oriMessage":"The received file information is not a valid file.","encodeMessage":"The%20received%20file%20information%20is%20not%20a%20valid%20file.","status":"error"}</code>
+	 * </p>
+	 */
+	public void extractDigitalSignature() {
+		
+		// 首先获取参数
+		String inputContent = this.newArgs.inputContent;
+		INPUT_CONTENT_TYPE inputContentType = this.newArgs.inputContentType;
+		String algorithm = this.newArgs.algorithmName;
+		
+		// 这里开始构造函数名
+		String methodName = "get"; // 方法前缀
+		methodName += algorithm.toUpperCase().replace("-", "_"); // 算法名称，不能带横线
+		methodName += "_Info"; // 匹配名称信息
+		if(inputContentType.equals(INPUT_CONTENT_TYPE.FILE)) {
+			// 如果是文件路径，还得再拼接一段
+			methodName += "FromFile";
+		}
+		
+		// 获取反射类
+		Class<MySummaryUtil> utilCls = MySummaryUtil.class;
+		try {
+			// 获取反射的方法
+			Method m1 = utilCls.getMethod(methodName, String.class);
+			Object result = m1.invoke(null, inputContent);
+			//
+			if(result==null) throw new Exception("在进行提取数字签名特征信息时，发生异常，请检查日志");
+			
+			// 终端输出结果
+			MyStrUtil.successOut((String)result, cArgs.isConsole());
+			
+		} catch (Exception e) {
+			//打印异常信息到文件
+			MyStrUtil.mylogger.error("[执行处理方法 "+methodName+" 异常]", e);
+			//将异常信息处理一下输出到标准输出流
+			if(e instanceof NoSuchMethodException) {
+				String temp = "处理方法 %s 不存在。";
+				MyStrUtil.errorOut(String.format(temp, methodName), cArgs.isConsole());
+			}else {
+				String temp = "发现了一些不寻常的异常，信息如下[%s]，具体请检查日志信息。";
+				MyStrUtil.errorOut(String.format(temp, e.getMessage()), cArgs.isConsole());
+			}
+		}
+		
+	}
+	
+	/**
+	 * 这里执行非对称加密和解密（在这之前，已经对参数进行了 独立校验 和 关联校验，可以直接使用了）。
+	 * 在加密时，如果没有公钥，则可以根据密钥长度，重新生成新的公钥和私钥，然后再加密。
+	 * 在解密时，必须提供私钥。
+	 * <p>调用举例：1、加密: -m ASYMMETRIC_ENCRYPTION -ende encrypt -algo rsa -ic "aaa" -ict text -kl 1024</p>
+	 * <p>调用举例：2、加密: -m ASYMMETRIC_ENCRYPTION -ende encrypt -algo rsa -ic "aaa" -ict text -pubkey 5555</p>
+	 * <p>调用举例：3、解密: -m ASYMMETRIC_ENCRYPTION -ende decrypt -algo rsa -ic "aaa" -ict text -prikey 66666</p>
+	 */
+	public void doAsymmetricEncryptionOrDecryption() {
+		
+		// 首先获取参数
+		EN_DE_TYPE actionType = this.newArgs.execType; // 处理方式：加密/解密
+		String inputContent = this.newArgs.inputContent; // 要处理的内容
+		//INPUT_CONTENT_TYPE inputContentType = this.newArgs.inputContentType; // 要处理的内容的类型: text, file
+		String algorithm = this.newArgs.algorithmName; // 算法名称
+		int keyLength = this.newArgs.keyLength;        // 密钥长度
+		String publicKey = this.newArgs.publicKey;     // 公钥信息
+		String privateKey = this.newArgs.privateKey;   // 私钥信息
+		
+		// 开始处理
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("publicKey", "");
+		data.put("privateKey", "");
+		data.put("resultString", "");
+		
+		// 这里暂时不分 类型 和 算法。因为暂时只支持 RSA 算法的 字符串处理
+		try {
+			switch(actionType) {
+			case ENCRYPT:
+				// 加密（如果没有公钥，需要先生成）
+				if(MyStrUtil.isEmptyString(publicKey)) {
+					KeyPair pair = MyRSAUtil.genKeys(keyLength, algorithm.toUpperCase());
+					publicKey = MyRSAUtil.getPublicKey(pair);
+					privateKey = MyRSAUtil.getPrivateKey(pair);
+					// 设置
+					data.put("publicKey", publicKey);
+					data.put("privateKey", privateKey);
+				}
+				String tmp = MyRSAUtil.encode(inputContent, publicKey); // 公钥加密
+				data.put("resultString", tmp);
+				break;
+			case DECRYPT:
+				// 解密
+				String tmp2 = MyRSAUtil.decode(inputContent, privateKey); //私钥解密
+				data.put("resultString", tmp2);
+				break;
+			}
+			// 这里进行赋值，并输出
+			ObjectMapper om = new ObjectMapper();
+			String re = om.writeValueAsString(data);
+			MyStrUtil.successOut(re, cArgs.isConsole());
+		} catch (Exception e) {
+			//打印异常信息到文件
+			MyStrUtil.mylogger.error("[执行处理方法 doAsymmetricEncryptionOrDecryption 异常]", e);
+			//将异常信息处理一下输出到标准输出流
+			String temp = "发现异常，信息如下[%s]，具体请检查日志信息。";
+			MyStrUtil.errorOut(String.format(temp, e.getMessage()), cArgs.isConsole());
 		}
 	}
 	

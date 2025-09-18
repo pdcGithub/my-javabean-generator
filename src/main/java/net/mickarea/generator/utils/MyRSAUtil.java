@@ -26,7 +26,7 @@ import javax.crypto.Cipher;
  * 这是一个简易的 RSA 算法 加密处理工具。它由 pdc-common-tools 移植过来。至于为什么要移植，因为输出处理上，有些不同
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年9月15日
+ * @since 2025年9月15日-2025年9月18日
  */
 public final class MyRSAUtil {
 
@@ -55,6 +55,27 @@ public final class MyRSAUtil {
 		random.setSeed(System.nanoTime());
 		//生成器初始化
 		gen.initialize(KEY_LENGTH, random);
+		//生成
+		KeyPair keyPair = gen.genKeyPair();
+		//返回结果
+		return keyPair;
+	}
+	
+	/**
+	 * 生成密钥对信息
+	 * @param keyLength 密钥长度 一般是 1024 的整数倍，且大于 1024
+	 * @param algorithm 加密算法名称 比如：RSA
+	 * @return 一个简单的密钥对对象，包含公钥 和 私钥
+	 * @throws Exception 执行过程可能发生异常导致报错
+	 */
+	public static KeyPair genKeys(int keyLength, String algorithm) throws Exception {
+		//密钥对生成器：生成类型为 RSA 算法所需密钥对
+		KeyPairGenerator gen = KeyPairGenerator.getInstance(algorithm);
+		//随机种子处理
+		SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+		random.setSeed(System.nanoTime());
+		//生成器初始化
+		gen.initialize(keyLength, random);
 		//生成
 		KeyPair keyPair = gen.genKeyPair();
 		//返回结果

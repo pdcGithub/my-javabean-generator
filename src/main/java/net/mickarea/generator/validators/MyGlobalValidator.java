@@ -12,7 +12,10 @@ package net.mickarea.generator.validators;
 
 import java.io.File;
 
+import net.mickarea.generator.constants.MyConstants.ASYMMETRIC_ENCRYPTION_ALGORITHM;
+import net.mickarea.generator.constants.MyConstants.EN_DE_TYPE;
 import net.mickarea.generator.constants.MyConstants.IMAGE_TYPE;
+import net.mickarea.generator.constants.MyConstants.INPUT_CONTENT_TYPE;
 import net.mickarea.generator.constants.MyConstants.RUNNING_MODE;
 import net.mickarea.generator.models.NewCommToolArgs;
 import net.mickarea.generator.utils.MyFileUtil;
@@ -23,7 +26,7 @@ import net.mickarea.generator.utils.MyStrUtil;
  * 对于单个的参数校验，交给 JCommander 的 Validator 类就行了。因为 旧版的 JCommander 没有关联校验参数。所以要自己写关联校验
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年4月24日-2025年5月14日
+ * @since 2025年4月24日-2025年9月18日
  */
 public class MyGlobalValidator {
 
@@ -71,6 +74,14 @@ public class MyGlobalValidator {
 			break;
 		case IMAGE_SCALING:
 			re = this.imageScalingValid();
+			break;
+		case DIGITAL_SIGNATURE:
+			// 数字签名模式
+			re = this.digitalSignatureValid();
+			break;
+		case ASYMMETRIC_ENCRYPTION:
+			// 非对称加密/解密 模式
+			re = this.asymmetricEncryptOrDecryptValid();
 			break;
 		default:
 			// 其它情况，暂时不处理
@@ -371,4 +382,106 @@ public class MyGlobalValidator {
 		return re;
 	}
 	
+	/**
+	 * 这是 数字签名模式 的全局校验处理（参数关联处理）
+	 * @return 校验通过，返回空；校验失败，返回一段提示信息。
+	 */
+	private String digitalSignatureValid() {
+		
+		// 调用举例：--console -m DIGITAL_SIGNATURE -ic "aaa" -ict "text" -algo "MD5"
+		// 调用举例：--console -m DIGITAL_SIGNATURE -ic "D:\\test.txt" -ict "file" -algo "MD5"
+		
+		String re = "";
+		
+		// 对于 数字签名，只有 3 个要处理的地方：输入内容，内容类型，算法名称
+		String content = this.myArgs.inputContent;
+		INPUT_CONTENT_TYPE type = this.myArgs.inputContentType;
+		String algoName = this.myArgs.algorithmName;
+		
+		// 校验参数是否为空（因为参数要写在命令行中，才会自动校验。如果命令行不写参数，则会是 空）
+		if(type==null) {re = "The type of content to be digitally signed cannot be empty."; return re;}
+		if(MyStrUtil.isEmptyString(content)) {re = "The content for the digital signature cannot be empty."; return re;}
+		if(MyStrUtil.isEmptyString(algoName)) {re = "The algorithm name for digital signatures cannot be empty."; return re;}
+		
+		// 分类型判断
+		switch(type) {
+		case FILE:
+			// 如果是对文件提取数字签名
+			File tmpFile = new File(content);
+			if(!tmpFile.exists() || !tmpFile.isFile()) {
+				re = "The received file information is not a valid file.";
+			}
+			break;
+		case TEXT:
+			// 如果是对字符串提取数字签名
+			break;
+		}
+		
+		// 返回
+		return re;
+	}
+	
+	/**
+	 * 这是 非对称加密/解密 模式 的 全局校验处理（参数关联处理）
+	 * @return 校验通过，返回空；校验失败，返回一段提示信息。
+	 */
+	private String asymmetricEncryptOrDecryptValid() {
+		
+		// 调用举例：1、加密: -m ASYMMETRIC_ENCRYPTION -ende encrypt -algo rsa -ic "aaa" -ict text -kl 1024
+		// 调用举例：2、加密: -m ASYMMETRIC_ENCRYPTION -ende encrypt -algo rsa -ic "aaa" -ict text -pubkey 5555
+		// 调用举例：3、解密: -m ASYMMETRIC_ENCRYPTION -ende decrypt -algo rsa -ic "aaa" -ict text -prikey 66666
+		
+		String re = "";
+		
+		// 先校验 一些必须的内容
+		String algoName = this.myArgs.algorithmName; // 1、算法名
+		EN_DE_TYPE type = this.myArgs.execType;      // 2、操作方式，加密，解密
+		String content = this.myArgs.inputContent;   // 3、输入的字符串
+		INPUT_CONTENT_TYPE contentType = this.myArgs.inputContentType; // 4、输入的字符串 对应的类型
+		String publicKey = this.myArgs.publicKey;    // 5、公钥字符串 -- 加密用
+		String privateKey = this.myArgs.privateKey;  // 6、私钥字符串 -- 解密用
+		int keyLength = this.myArgs.keyLength;       // 7、密钥长度
+		
+		// 先明确，到底是加密 还是 解密
+		if(type==null) {re = "The type of operation for encryption or decryption must be specified and cannot be empty."; return re;}
+		
+		// 算法名 和 输入字符串不能 为空
+		if(MyStrUtil.isEmptyString(algoName)) {re = "The name of the encryption or decryption algorithm cannot be empty."; return re;}
+		if(MyStrUtil.isEmptyString(content)) {re = "The content string for encryption or decryption cannot be empty."; return re;}
+		if(contentType==null) {re = "The string type used for encryption or decryption cannot be empty."; return re;}
+		
+		// 目前只处理字符串，不处理文件加密
+		if(!contentType.equals(INPUT_CONTENT_TYPE.TEXT)) {
+			re = "Currently, encryption and decryption operations can only be performed on strings. Please change the content type to text.";
+			return re;
+		}
+		
+		// 目前只处理 RSA 算法
+		if(!algoName.equalsIgnoreCase(ASYMMETRIC_ENCRYPTION_ALGORITHM.RSA.name())) {
+			re = "Currently, only RSA algorithm is supported.";
+			return re;
+		}
+		
+		// 再根据类型，进一步校验
+		switch(type) {
+		case ENCRYPT:
+			// 加密 (需要 算法名、公钥、内容。如果没有公钥，还需要根据密钥长度，先 生成公钥和私钥)
+			if(MyStrUtil.isEmptyString(publicKey) && keyLength<=0) {
+				// 公钥 和 密钥长度，至少提供一个
+				re = "When encrypting data, you need to provide either a public key or the key length, at least one of them.";
+				break;
+			}
+			break;
+		case DECRYPT:
+			// 解密 (只需要 算法名、私钥、内容 即可)
+			if(MyStrUtil.isEmptyString(privateKey)) {
+				re = "The private key cannot be empty during the decryption operation.";
+				break;
+			}
+			break;
+		}
+		
+		// 返回
+		return re;
+	}
 }

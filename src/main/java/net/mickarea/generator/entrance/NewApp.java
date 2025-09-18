@@ -40,7 +40,7 @@ import net.mickarea.generator.validators.MyGlobalValidator;
  * </p>
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年4月29日-2025年5月13日
+ * @since 2025年4月29日-2025年9月18日
  */
 public class NewApp {
 
@@ -118,6 +118,14 @@ public class NewApp {
 		case IMAGE_SCALING:
 			// 图片缩放处理 模式
 			new MainController(toolArgs).scaleImages();
+			break;
+		case DIGITAL_SIGNATURE:
+			// 数字签名处理
+			new MainController(toolArgs).extractDigitalSignature();
+			break;
+		case ASYMMETRIC_ENCRYPTION:
+			// 非对称加密处理
+			new MainController(toolArgs).doAsymmetricEncryptionOrDecryption();
 			break;
 		default:
 			// 其它情况，暂时不处理

@@ -19,7 +19,7 @@ import java.security.NoSuchAlgorithmException;
  * 这是一个简易的数字签名处理工具。它由 pdc-common-tools 移植过来。至于为什么要移植，因为输出处理上，有些不同
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年9月15日
+ * @since 2025年9月15日-2025年9月18日
  */
 public final class MySummaryUtil {
 	
@@ -43,7 +43,7 @@ public final class MySummaryUtil {
 	 * @param preStr 待处理的字符串
 	 * @return 摘要信息。当发生异常，会返回一个 null 值，然后记录异常信息到 日志文件 中。
 	 */
-	public static String getMD5Info(String preStr) {
+	public static String getMD5_Info(String preStr) {
 		return work(preStr, MD5);
 	}
 	/**
@@ -51,7 +51,7 @@ public final class MySummaryUtil {
 	 * @param filePath 待处理的文件路径
 	 * @return 摘要信息。当发生异常，会返回一个 null 值，然后记录异常信息到 日志文件 中。
 	 */
-	public static String getMD5InfoFromFile(String filePath) {
+	public static String getMD5_InfoFromFile(String filePath) {
 		return workForFile(filePath, MD5);
 	}
 	
