@@ -29,7 +29,7 @@ Currently, the generator can connect to 3 types of databases: mysql, oracle, sql
 If you want to get parameter information, you can do the following:
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar -h
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar -h
 ```
 
 The output of this command might be as follows:
@@ -42,6 +42,9 @@ Usage: <main class> [options]
     -at, --action_type
       The action type of generator.
       Possible Values: [OBJECT, SQL]
+    -algo, --algorithm
+      Algorithm name to be processed. For example: MD5, SHA_1, SHA_224, 
+      SHA_256, SHA_384, SHA_512, RSA.
     -ac, --auto_commit
       Whether or not to commit automatically.
       Default: false
@@ -63,6 +66,9 @@ Usage: <main class> [options]
       This is the directory where the entity is stored after it is generated. 
       This parameter can also be used to specify the output folder for scaled 
       images. Please ensure that the folder has write permissions.
+    -ende, --encrypt_or_decrypt
+      How to handle it: ENCRYPT / DECRYPT.
+      Possible Values: [ENCRYPT, DECRYPT]
     -fc, --file_charset
       The character set used when the file is saved.
     -haz, --height_after_zooming
@@ -78,11 +84,20 @@ Usage: <main class> [options]
       This is the original folder path where the images are stored. This 
       parameter is mutually exclusive with '-ifs'. When both appear, only the 
       '-ifs' parameter is processed.
+    -ic, --input_content
+      This is a string or file path to be processed.
+    -ict, --input_content_type
+      This is the type of content that needs to be processed.
+      Possible Values: [FILE, TEXT]
     -jdn, --jdbc_driver_name
       The JDBC driver class name. For example: 'com.mysql.cj.jdbc.Driver'.
     -ju, --jdbc_url
       The JDBC connection URL. For example: 
       'jdbc:mysql://127.0.0.1:3306/myspace_db' 
+    -kl, --key_length
+      The key length required during encryption processing. The key length is 
+      generally above 1024.
+      Default: 0
     -max, --max_thread
       The maximum number of connections in the connection pool.
       Default: 40
@@ -91,10 +106,15 @@ Usage: <main class> [options]
       Default: 10
   * -m, --mode
       Running mode of the generator.
-      Possible Values: [JAR_TEST, DB_CONN_TEST, DB_OBJ_SELECT, JAVA_BEAN_GEN, JAVA_FEATURE_GEN, IMAGE_SCALING]
+      Possible Values: [JAR_TEST, DB_CONN_TEST, DB_OBJ_SELECT, JAVA_BEAN_GEN, JAVA_FEATURE_GEN, IMAGE_SCALING, DIGITAL_SIGNATURE, ASYMMETRIC_ENCRYPTION]
     -n, --name
       The name of configuration.
       Default: defaultName
+    -prikey, --private_key
+      This is the private key needed during the execution of the decryption 
+      algorithm. 
+    -pubkey, --public_key
+      This is the public key needed when executing the encryption algorithm.
     -sc, --schema
       The name of the database schema.
     -scu, --schema_user
@@ -114,7 +134,7 @@ Usage: <main class> [options]
 If you want to test if this jar will work, you can enter the following command:
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m jar_test
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m jar_test
 ```
 
 If there is no parameter `--console` , it will be output in json format.
@@ -124,19 +144,19 @@ If there is no parameter `--console` , it will be output in json format.
 ### 3.1 MySql 8+
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m db_conn_test -db mysql -jdn com.mysql.cj.jdbc.Driver -ju "jdbc:mysql://192.168.220.129:3306/myspace_db" -dun spaceadmin -dup "1234567890-=AA" -ct 5000 -min 10 -max 20 
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m db_conn_test -db mysql -jdn com.mysql.cj.jdbc.Driver -ju "jdbc:mysql://192.168.220.129:3306/myspace_db" -dun spaceadmin -dup "1234567890-=AA" -ct 5000 -min 10 -max 20 
 ```
 
 ### 3.2 Oracle 11g+
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m db_conn_test -db oracle -jdn oracle.jdbc.driver.OracleDriver -ju "jdbc:oracle:thin:@192.168.220.129:1521:ORCL" -dun scott -dup tiger -ct 5000 -min 10 -max 20
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m db_conn_test -db oracle -jdn oracle.jdbc.driver.OracleDriver -ju "jdbc:oracle:thin:@192.168.220.129:1521:ORCL" -dun scott -dup tiger -ct 5000 -min 10 -max 20
 ```
 
 ### 3.3 SQL Server 2016+
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m db_conn_test -db sqlserver -jdn com.microsoft.sqlserver.jdbc.SQLServerDriver -ju "jdbc:sqlserver://192.168.220.129:1433;DatabaseName=pdc_test;encrypt=true;trustServerCertificate=true" -dun pdc -dup "1234567890-=AA" -ct 5000 -min 10 -max 20
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m db_conn_test -db sqlserver -jdn com.microsoft.sqlserver.jdbc.SQLServerDriver -ju "jdbc:sqlserver://192.168.220.129:1433;DatabaseName=pdc_test;encrypt=true;trustServerCertificate=true" -dun pdc -dup "1234567890-=AA" -ct 5000 -min 10 -max 20
 ```
 
 ## 4. select database objects
@@ -144,19 +164,19 @@ java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m db_c
 ### 4.1 MySql 8+
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m db_obj_select -db mysql -jdn com.mysql.cj.jdbc.Driver -ju "jdbc:mysql://192.168.220.129:3306/myspace_db" -dun spaceadmin -dup "1234567890-=AA" -ct 5000 -min 10 -max 20 -sc myspace_db -scu spaceadmin
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m db_obj_select -db mysql -jdn com.mysql.cj.jdbc.Driver -ju "jdbc:mysql://192.168.220.129:3306/myspace_db" -dun spaceadmin -dup "1234567890-=AA" -ct 5000 -min 10 -max 20 -sc myspace_db -scu spaceadmin
 ```
 
 ### 4.2 Oracle 11g+
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m db_obj_select -db oracle -jdn oracle.jdbc.driver.OracleDriver -ju "jdbc:oracle:thin:@192.168.220.129:1521:ORCL" -dun scott -dup tiger -ct 5000 -min 10 -max 20 -sc scott -scu scott
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m db_obj_select -db oracle -jdn oracle.jdbc.driver.OracleDriver -ju "jdbc:oracle:thin:@192.168.220.129:1521:ORCL" -dun scott -dup tiger -ct 5000 -min 10 -max 20 -sc scott -scu scott
 ```
 
 ### 4.3 SQL Server 2016+
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m db_obj_select -db sqlserver -jdn com.microsoft.sqlserver.jdbc.SQLServerDriver -ju "jdbc:sqlserver://192.168.220.129:1433;DatabaseName=pdc_test;encrypt=true;trustServerCertificate=true" -dun pdc -dup "1234567890-=AA" -ct 5000 -min 10 -max 20 -sc dbo -scu dbo
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m db_obj_select -db sqlserver -jdn com.microsoft.sqlserver.jdbc.SQLServerDriver -ju "jdbc:sqlserver://192.168.220.129:1433;DatabaseName=pdc_test;encrypt=true;trustServerCertificate=true" -dun pdc -dup "1234567890-=AA" -ct 5000 -min 10 -max 20 -sc dbo -scu dbo
 ```
 
 ## 5. generate java beans
@@ -170,13 +190,13 @@ Do not set the output folder to a non-writable path, such as the root directory 
 #### 5.1.1 objects
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m java_bean_gen -db mysql -jdn com.mysql.cj.jdbc.Driver -ju "jdbc:mysql://192.168.220.129:3306/myspace_db" -dun spaceadmin -dup "1234567890-=AA" -ct 5000 -min 10 -max 20 -sc myspace_db -scu spaceadmin -fc utf-8 -at object -so "TEST_A,TEST_B" -d "C:\\Users\\Michael\\Desktop"
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m java_bean_gen -db mysql -jdn com.mysql.cj.jdbc.Driver -ju "jdbc:mysql://192.168.220.129:3306/myspace_db" -dun spaceadmin -dup "1234567890-=AA" -ct 5000 -min 10 -max 20 -sc myspace_db -scu spaceadmin -fc utf-8 -at object -so "TEST_A,TEST_B" -d "C:\\Users\\Michael\\Desktop"
 ```
 
 #### 5.1.2 sql
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m java_bean_gen -db mysql -jdn com.mysql.cj.jdbc.Driver -ju "jdbc:mysql://192.168.220.129:3306/myspace_db" -dun spaceadmin -dup "1234567890-=AA" -ct 5000 -min 10 -max 20 -sc myspace_db -scu spaceadmin -fc utf-8 -at sql -st "select 1 as col_1" -d "C:\\Users\\Michael\\Desktop"
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m java_bean_gen -db mysql -jdn com.mysql.cj.jdbc.Driver -ju "jdbc:mysql://192.168.220.129:3306/myspace_db" -dun spaceadmin -dup "1234567890-=AA" -ct 5000 -min 10 -max 20 -sc myspace_db -scu spaceadmin -fc utf-8 -at sql -st "select 1 as col_1" -d "C:\\Users\\Michael\\Desktop"
 ```
 
 ### 5.2 Oracle 11g+
@@ -184,13 +204,13 @@ java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m java
 #### 5.2.1 objects
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m java_bean_gen -db oracle -jdn oracle.jdbc.driver.OracleDriver -ju "jdbc:oracle:thin:@192.168.220.129:1521:ORCL" -dun scott -dup tiger -ct 5000 -min 10 -max 20 -sc scott -scu scott -fc utf-8 -at object -so "DEPT,EMP" -d "C:\\Users\\Michael\\Desktop"
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m java_bean_gen -db oracle -jdn oracle.jdbc.driver.OracleDriver -ju "jdbc:oracle:thin:@192.168.220.129:1521:ORCL" -dun scott -dup tiger -ct 5000 -min 10 -max 20 -sc scott -scu scott -fc utf-8 -at object -so "DEPT,EMP" -d "C:\\Users\\Michael\\Desktop"
 ```
 
 #### 5.2.2 sql
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m java_bean_gen -db oracle -jdn oracle.jdbc.driver.OracleDriver -ju "jdbc:oracle:thin:@192.168.220.129:1521:ORCL" -dun scott -dup tiger -ct 5000 -min 10 -max 20 -sc scott -scu scott -fc utf-8 -at sql -st "select 1 as col_222 from dual" -d "C:\\Users\\Michael\\Desktop"
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m java_bean_gen -db oracle -jdn oracle.jdbc.driver.OracleDriver -ju "jdbc:oracle:thin:@192.168.220.129:1521:ORCL" -dun scott -dup tiger -ct 5000 -min 10 -max 20 -sc scott -scu scott -fc utf-8 -at sql -st "select 1 as col_222 from dual" -d "C:\\Users\\Michael\\Desktop"
 ```
 
 ### 5.3 SQL Server 2016+
@@ -198,13 +218,13 @@ java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m java
 #### 5.3.1 objects
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m java_bean_gen -db sqlserver -jdn com.microsoft.sqlserver.jdbc.SQLServerDriver -ju "jdbc:sqlserver://192.168.220.129:1433;DatabaseName=pdc_test;encrypt=true;trustServerCertificate=true" -dun pdc -dup "1234567890-=AA" -ct 5000 -min 10 -max 20 -sc dbo -scu dbo -fc utf-8 -at object -so "SCORES,STUDENT" -d "C:\\Users\\Michael\\Desktop"
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m java_bean_gen -db sqlserver -jdn com.microsoft.sqlserver.jdbc.SQLServerDriver -ju "jdbc:sqlserver://192.168.220.129:1433;DatabaseName=pdc_test;encrypt=true;trustServerCertificate=true" -dun pdc -dup "1234567890-=AA" -ct 5000 -min 10 -max 20 -sc dbo -scu dbo -fc utf-8 -at object -so "SCORES,STUDENT" -d "C:\\Users\\Michael\\Desktop"
 ```
 
 #### 5.3.2 sql
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m java_bean_gen -db sqlserver -jdn com.microsoft.sqlserver.jdbc.SQLServerDriver -ju "jdbc:sqlserver://192.168.220.129:1433;DatabaseName=pdc_test;encrypt=true;trustServerCertificate=true" -dun pdc -dup "1234567890-=AA" -ct 5000 -min 10 -max 20 -sc dbo -scu dbo -fc utf-8 -at sql -st "select 1 as col_444" -d "C:\\Users\\Michael\\Desktop"
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m java_bean_gen -db sqlserver -jdn com.microsoft.sqlserver.jdbc.SQLServerDriver -ju "jdbc:sqlserver://192.168.220.129:1433;DatabaseName=pdc_test;encrypt=true;trustServerCertificate=true" -dun pdc -dup "1234567890-=AA" -ct 5000 -min 10 -max 20 -sc dbo -scu dbo -fc utf-8 -at sql -st "select 1 as col_444" -d "C:\\Users\\Michael\\Desktop"
 ```
 
 ## 6. generate java action classes
@@ -216,7 +236,7 @@ Before processing, please ensure that your output folder has write permissions.
 Do not set the output folder to a non-writable path, such as the root directory of the C drive on a Windows system (C:\\\\).
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m java_feature_gen -acn MyTester01 -fc utf-8 -d "C:\\Users\\Michael\\Desktop"
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m java_feature_gen -acn MyTester01 -fc utf-8 -d "C:\\Users\\Michael\\Desktop"
 ```
 
 ## 7. images scaling
@@ -230,11 +250,55 @@ Do not set the output folder to a non-writable path, such as the root directory 
 ### 7.1 scale the specified file
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m image_scaling -ifs "C:\\Users\\Michael\\Pictures\\testimgs\\DSC00016.JPG, C:\\Users\\Michael\\Pictures\\testimgs\\DSC00019.JPG " -d "C:\\Users\\Michael\\Pictures\\testimgs\\output"  -waz 1600 -haz 901
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m image_scaling -ifs "C:\\Users\\Michael\\Pictures\\testimgs\\DSC00016.JPG, C:\\Users\\Michael\\Pictures\\testimgs\\DSC00019.JPG " -d "C:\\Users\\Michael\\Pictures\\testimgs\\output"  -waz 1600 -haz 901
 ```
 
 ### 7.2 scale all images in the specified folder (non-recursive search)
 
 ```Bash
-java -jar .\generator-1.0.0-SNAPSHOT-jar-with-dependencies.jar --console -m image_scaling -ifd "C:\\Users\\Michael\\Pictures\\testimgs" -d "C:\\Users\\Michael\\Pictures\\testimgs\\output"  -waz 1600 -haz 901
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m image_scaling -ifd "C:\\Users\\Michael\\Pictures\\testimgs" -d "C:\\Users\\Michael\\Pictures\\testimgs\\output"  -waz 1600 -haz 901
+```
+
+## 8. digital signature
+
+This feature is mainly used to extract unique information, also known as a digital signature. Its applicable objects are strings and local files.
+
+Here are some examples of applications.
+
+### 8.1 for strings
+
+```Base
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m DIGITAL_SIGNATURE -ic "aaa" -ict "text" -algo "MD5"
+```
+
+### 8.2 for files
+
+```Base
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m DIGITAL_SIGNATURE -ic "D:\\test.txt" -ict "file" -algo "MD5"
+```
+
+## 9. asymmetric encryption/decryption
+
+This feature is mainly used for asymmetric encryption/decryption of strings.
+
+Currently, only the RSA algorithm is supported, and the key length must be greater than or equal to 1024 bits.
+
+When encrypting, if a public key is not provided, a new key pair will be automatically generated based on the key length.
+
+### 9.1 encryption operation, but there is no public key information.
+
+```Base
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m ASYMMETRIC_ENCRYPTION -ende encrypt -algo rsa -ic "aaa" -ict text -kl 1024
+```
+
+### 9.2 encryption operation with public key information.
+
+```Base
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m ASYMMETRIC_ENCRYPTION -ende encrypt -algo rsa -ic "aaa" -ict text -pubkey "xxxxx"
+```
+
+### 9.3 decryption operation, with private key information.
+
+```Base
+java -jar .\generator-1.0.3-SNAPSHOT-jar-with-dependencies.jar --console -m ASYMMETRIC_ENCRYPTION -ende decrypt -algo rsa -ic "aaa" -ict text -prikey "yyyyy"
 ```
