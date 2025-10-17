@@ -10,6 +10,9 @@ Copyright (c) 2022 - 2025 Michael Pang.
 *******************************************************************************************************/
 package net.mickarea.generator.utils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -19,7 +22,7 @@ import java.security.NoSuchAlgorithmException;
  * 这是一个简易的数字签名处理工具。它由 pdc-common-tools 移植过来。至于为什么要移植，因为输出处理上，有些不同
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2025年9月15日-2025年9月18日
+ * @since 2025年9月15日-2025年10月17日
  */
 public final class MySummaryUtil {
 	
@@ -173,13 +176,35 @@ public final class MySummaryUtil {
 	}
 	
 	/**
-	 * 执行文件的数字摘要提取工作，提取成功返回一个字符串信息（16进制的字符串信息）
+	 * <p>执行文件的数字摘要提取工作，提取成功返回一个字符串信息（16进制的字符串信息）</p>
+	 * <p>注意：如果 文件大于 500 MB，则使用大文件提取，否则使用小文件提取</p>
 	 * @param filePath 文件路径
 	 * @param algorithm 加密算法名称
 	 * @return 一个字符串信息（16进制的字符串信息）当然，如果执行时判断条件没触发，会返回一个 null 值。
-	 * @throws Exception 如果有异常，会记录到日志文件，并且抛出
 	 */
-	private static String workForFile(String filePath, String algorithm) {
+	public static String workForFile(String filePath, String algorithm) {
+		
+		// 首先定义文件字节大小
+		long fileSize = 0;
+		
+		// 根据文件情况，计算文件大小
+		if(!MyStrUtil.isEmptyString(filePath)) {
+			File tmpFile = new File(filePath);
+			fileSize = (tmpFile.exists() && tmpFile.isFile()) ? tmpFile.length() : 0;
+		}
+		
+		// 如果 大于 500 MB，则使用大文件提取，否则使用小文件提取
+		return (fileSize <= 500*1024*1024) ? workForSmallFile(filePath, algorithm) : workForBigFile(filePath, algorithm);
+	}
+	
+	/**
+	 * <p>执行文件的数字摘要提取工作，提取成功返回一个字符串信息（16进制的字符串信息）</p>
+	 * <p>注意：如果文件很大，大于 500MB，建议换一个实现方式。因为，这里是一次性读入内存，会内存溢出。</p>
+	 * @param filePath 文件路径
+	 * @param algorithm 加密算法名称
+	 * @return 一个字符串信息（16进制的字符串信息）当然，如果执行时判断条件没触发，会返回一个 null 值。
+	 */
+	private static String workForSmallFile(String filePath, String algorithm) {
 		String re = null;
 		
 		//文件路径不能为空；算法名不能为空
@@ -213,11 +238,62 @@ public final class MySummaryUtil {
 	}
 	
 	/**
+	 * <p>执行文件的数字摘要提取工作，提取成功返回一个字符串信息（16进制的字符串信息）</p>
+	 * <p>注意：这里是 逐块计算哈希值。可以在读取每一块数据后，更新哈希对象的状态，而不是等到读取完整个文件后再进行计算。这样可以在读取文件的过程中逐步计算哈希值，减少了内存占用和计算时间。</p>
+	 * @param filePath 文件路径
+	 * @param algorithm 加密算法名称
+	 * @return 一个字符串信息（16进制的字符串信息）当然，如果执行时判断条件没触发，会返回一个 null 值。
+	 */
+	private static String workForBigFile(String filePath, String algorithm) {
+		
+		String re = null;
+		
+		//文件路径不能为空；算法名不能为空
+		if(MyStrUtil.isEmptyString(filePath) || MyStrUtil.isEmptyString(algorithm)) {
+			MyStrUtil.mylogger.error("执行发生异常，接收到的 待文件路径 或者 加密算法信息 为空。");
+			return re;
+		}
+		
+		FileInputStream fis = null;
+		try {
+			//按照算法名，获取处理实例
+			MessageDigest digest = MessageDigest.getInstance(algorithm);
+			// 更新摘要信息，并提取
+			fis = new FileInputStream(filePath);
+			// 将文件以 字节 的方式处理
+			int buffSize = 1024*8;
+			int readLength = 0;
+			byte[] buffer = new byte[buffSize];
+			while((readLength=fis.read(buffer))>0) {
+				digest.update(buffer, 0, readLength);
+			}
+			//
+			byte[] byteRe = digest.digest();
+			//将获取的摘要字节数组转化为16进制的字符串信息
+			re = byteToHexString(byteRe);
+		} catch(FileNotFoundException fe) {
+			MyStrUtil.mylogger.error("数字摘要提取处理，传入的文件不存在，文件路径："+filePath, fe);
+		} catch (NoSuchAlgorithmException e) {
+			MyStrUtil.mylogger.error("数字摘要提取处理，传入的算法名错误，算法名："+algorithm+"，文件路径："+filePath, e);
+		} catch (Exception e1) {
+			MyStrUtil.mylogger.error("数字摘要提取处理，发生其它异常："+e1.getMessage(), e1);
+		}finally {
+			// 文件流资源释放
+			if(fis!=null) {
+				try {fis.close(); } catch (Exception e2) { }
+				fis=null;
+			}
+		}
+		
+		return re;
+	}
+	
+	/**
 	 * 将字节数组转换成16进制的字符串
 	 * @param bytes 待转换的字节数组
 	 * @return 16进制的字符串
 	 */
-	private static String byteToHexString(byte[] bytes) {
+	public static String byteToHexString(byte[] bytes) {
 		StringBuffer buffer = new StringBuffer();
 		if(bytes!=null) {
 			for(byte b : bytes) {

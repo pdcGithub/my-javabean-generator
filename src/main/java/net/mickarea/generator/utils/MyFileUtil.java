@@ -30,7 +30,7 @@ import net.mickarea.generator.opts.MyWriter;
  * &gt;&gt;&nbsp;文件读写操作工具类（默认的文件读写字符集为 UTF-8）
  * @author Michael Pang (Dongcan Pang)
  * @version 1.0
- * @since 2024年5月16日-2025年9月15日
+ * @since 2024年5月16日-2025年10月17日
  */
 public final class MyFileUtil {
 	
@@ -296,7 +296,8 @@ public final class MyFileUtil {
 	}
 	
 	/**
-	 * 将给定地址的文件，以字节数组的方式返回。（这里不抛异常，只返回 null 作为异常标识，异常信息会记录到日志文件）
+	 * <p>将给定地址的文件，以字节数组的方式返回。（这里不抛异常，只返回 null 作为异常标识，异常信息会记录到日志文件）</p>
+	 * <p>注意：如果文件很大，大于 500MB，建议换一个实现方式。因为，这里是一次性读入内存，会内存溢出。</p>
 	 * @param filePath 文件地址
 	 * @return 字节数组形式的文件对象。如果文件异常（比如：文件不存在、无法读取、流处理报错等），则返回 null
 	 */
@@ -356,7 +357,8 @@ public final class MyFileUtil {
 	}
 	
 	/**
-	 * 将给定地址的文件，以 ByteBuffer 的方式返回。（这里不抛异常，只返回 null 作为异常标识，异常信息会记录到日志文件）
+	 * <p>将给定地址的文件，以 ByteBuffer 的方式返回。（这里不抛异常，只返回 null 作为异常标识，异常信息会记录到日志文件）</p>
+	 * <p>注意：如果文件很大，大于 500MB，建议换一个实现方式。因为，这里是一次性读入内存，会内存溢出。</p>
 	 * @param filePath 文件地址
 	 * @return ByteBuffer 对象。如果文件异常（比如：文件不存在、无法读取、流处理报错等），则返回 null
 	 */
